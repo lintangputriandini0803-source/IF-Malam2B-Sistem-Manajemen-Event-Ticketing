@@ -5,9 +5,10 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ListItemController;
 
-// Login
-Route::get('/login', [LoginController::class, 'showLogin']);
-
+//Route::get('/', function () {
+//    return view('welcome');
+Route::get('/login', [LoginController::class,'index']);
+Route::post('/login', [LoginController::class, 'login']);
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
