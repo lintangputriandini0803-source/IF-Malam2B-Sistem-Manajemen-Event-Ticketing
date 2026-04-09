@@ -14,3 +14,7 @@ Route::get('/dashboard', [DashboardController::class, 'index']);
 
 // List Item (dengan parameter opsional)
 Route::get('/listitem/{id?}/{name?}', [ListItemController::class, 'show']);
+
+Route::get('/app', function () {
+    return view('app');
+});
