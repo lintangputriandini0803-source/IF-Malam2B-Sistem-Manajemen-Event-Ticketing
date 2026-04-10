@@ -18,3 +18,6 @@ Route::get('/listitem/{id?}/{name?}', [ListItemController::class, 'show']);
 Route::get('/app', function () {
     return view('app');
 });
+Route::get('/app', function () {
+    return view('app');
+});
