@@ -13,7 +13,7 @@ class ListBarangController extends Controller
             ['id' => 2, 'nama' => 'Mouse'],
             ['id' => 3, 'nama' => 'Keyboard'],
         ];
-    }
+    
         return view('list_barang', compact('barangs'));
     }
 }
