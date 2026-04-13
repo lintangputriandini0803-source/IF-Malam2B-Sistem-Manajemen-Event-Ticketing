@@ -23,15 +23,15 @@
                     <a href="#" class="text-white hover:text-gray-200">Tentang Kami</a>
                 </div>
                 
-                <button class="bg-white text-[#8A008A] font-bold rounded-full text-sm px-8 py-2 flex items-center shadow-lg hover:bg-gray-100">
+                <button class="bg-white text-[#8A008A] font-bold rounded-full text-sm px-8 py-2 flex items-center shadow-lg hover:bg-gray-100 cursor-pointer">
                     Login
-                    <svg class="w-4 h-4 ms-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
+                <svg class="text-white w-4 h-4 ms-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
             </div>
         </div>
     </nav>
 
-    <main class="mt-24 max-w-screen-xl mx-auto p-4">
+    <main class="mt-15 max-w-screen-xl mx-auto p-4">
         
         <div class="flex items-center gap-0 mb-8 max-w-4xl mx-auto">
             <div class="relative flex-grow">
@@ -63,29 +63,29 @@
         <h2 class="text-3xl font-extrabold text-center text-[#8A008A] mb-12">Sistem Manajemen Event & Ticketing</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            @for ($i = 0; $i < 8; $i++)
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transform hover:scale-105 transition duration-300">
-                <div class="h-48 bg-[#F3F4F6] relative border-b border-gray-200 flex items-center justify-center">
-                    <svg class="w-full h-full text-gray-300 p-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-width="1" d="M0 0 L24 24 M24 0 L0 24"></path>
-                    </svg>
+    @foreach ($events as $event)
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transform hover:scale-105 transition duration-300">
+        <div class="h-48 bg-[#F3F4F6] relative border-b border-gray-200 flex items-center justify-center">
+            <svg class="w-full h-full text-gray-300 p-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="1" d="M0 0 L24 24 M24 0 L0 24"></path>
+            </svg>
+        </div>
+        <div class="p-5">
+            <h3 class="font-bold text-[#8A008A] text-lg mb-3">{{ $event['nama'] }}</h3>
+            <div class="space-y-2">
+                <div class="flex items-center text-[10px] font-bold text-gray-700 uppercase">
+                    <span class="w-4 h-4 bg-[#8A008A] rounded-sm me-3"></span>
+                    {{ $event['waktu'] }}
                 </div>
-                <div class="p-5">
-                    <h3 class="font-bold text-[#8A008A] text-lg mb-3">Judul Event</h3>
-                    <div class="space-y-2">
-                        <div class="flex items-center text-[10px] font-bold text-gray-700 uppercase">
-                            <span class="w-4 h-4 bg-[#8A008A] rounded-sm me-3"></span>
-                            00.00 - 00.00
-                        </div>
-                        <div class="flex items-center text-[10px] font-bold text-gray-700 uppercase">
-                            <span class="w-4 h-4 bg-[#8A008A] rounded-sm me-3"></span>
-                            Mulai Dari Rp. 00.000,00
-                        </div>
-                    </div>
+                <div class="flex items-center text-[10px] font-bold text-gray-700 uppercase">
+                    <span class="w-4 h-4 bg-[#8A008A] rounded-sm me-3"></span>
+                    Mulai Dari Rp {{ number_format($event['harga'], 0, ',', '.') }}
                 </div>
             </div>
-            @endfor
         </div>
+    </div>
+    @endforeach
+</div>
 
         <div class="flex justify-center mb-20">
             <button class="px-10 py-3 text-sm font-bold text-white bg-[#8A008A] rounded-full hover:bg-purple-800 shadow-lg transition flex items-center">

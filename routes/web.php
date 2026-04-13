@@ -3,13 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ListBarangController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutUsLinnController;
 
 Route::get('/about', [AboutUsLinnController::class, 'tampilkan']);
 Route::get('/event', [EventController::class, 'index']);
-Route::get('/', function () {
-    return view('app');
-});
+Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/welcome', function () {
     return view('welcome');
