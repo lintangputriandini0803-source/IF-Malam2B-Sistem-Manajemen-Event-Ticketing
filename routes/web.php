@@ -5,6 +5,7 @@ use App\Http\Controllers\ListBarangController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutUsLinnController;
+use App\Http\Controllers\RegisterController;
 
 Route::get('/about', [AboutUsLinnController::class, 'tampilkan']);
 Route::get('/event', [EventController::class, 'index']);
@@ -32,3 +33,8 @@ Route::prefix('admin')->group(function () {
 //});
 
 Route::get('/barang', [ListBarangController::class, 'index']);
+
+Route::get('/register', function () {
+    return view('register');
+});
+Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
