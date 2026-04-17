@@ -5,122 +5,170 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIMETIX - Event & Ticketing</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+    /* Menampilkan garis di semua elemen agar terlihat strukturnya */
+    * {
+        outline: 1px solid rgba(255, 0, 0, 0.2);
+    }
+        body{
+            background: rgb(216, 216, 216) ;
+        }
+        button, a, .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-900">
 
-    <nav class="bg-[#8A008A] fixed w-full z-30 top-0 start-0 px-4 py-3 shadow-md">
-        <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-        <a href="/" class="flex items-center space-x-2">
-            <div class="w-12 h-13 flex items-center justify-center">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo Simetix" class="h-full w-auto object-contain">
-            </div>
-            <span class="text-white text-2xl font-bold tracking-wider">SIMETIX</span>
-        </a>
+<body class="bg-gray=-50 font-sans text-gray-900 relative overflow-x-hidden">
 
-            <div class="flex items-center space-x-8">
-                <div class="hidden md:flex space-x-8 text-sm font-medium">
-                    <a href="#" class="text-white hover:text-gray-200">Event</a>
-                    <a href="#" class="text-white hover:text-gray-200">Tentang Kami</a>
-                </div>
-                
-                <button class="bg-white text-[#8A008A] font-bold rounded-full text-sm px-8 py-2 flex items-center shadow-lg hover:bg-gray-100 cursor-pointer">
-                    Login
-                </button>
-                <svg class="text-white w-4 h-4 ms-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
-        </div>
-    </nav>
-
-    <main class="mt-15 max-w-screen-xl mx-auto p-4">
-        
-        <div class="flex items-center gap-0 mb-8 max-w-4xl mx-auto">
-            <div class="relative flex-grow">
-                <div class="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <input type="text" class="block w-full p-3 ps-12 text-sm text-gray-900 border border-gray-300 rounded-s-xl bg-gray-100 focus:ring-purple-500 focus:border-purple-500" placeholder="Cari event...">
-            </div>
-            <button class="p-3 bg-gray-200 border-y border-gray-300 hover:bg-gray-300">
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-            </button>
-            <button class="bg-[#8A008A] text-white px-8 py-3 text-sm font-bold rounded-e-xl hover:bg-purple-800 transition">
-                Search
-            </button>
-        </div>
-
-        <div id="default-carousel" class="relative w-full mb-12 shadow-xl rounded-2xl overflow-hidden" data-carousel="slide">
-            <div class="relative h-64 md:h-[400px] bg-gray-300 flex items-center justify-center">
-                <div class="absolute bottom-5 flex space-x-2">
-                    <div class="w-2 h-2 rounded-full bg-gray-800"></div>
-                    <div class="w-2 h-2 rounded-full bg-gray-500"></div>
-                    <div class="w-2 h-2 rounded-full bg-gray-500"></div>
-                    <div class="w-2 h-2 rounded-full bg-gray-500"></div>
-                </div>
-                <span class="text-gray-400 font-bold text-xl uppercase tracking-widest">Banner Promo Event</span>
-            </div>
-        </div>
-
-        <h2 class="text-3xl font-extrabold text-center text-[#8A008A] mb-12">Sistem Manajemen Event & Ticketing</h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-    @foreach ($events as $event)
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transform hover:scale-105 transition duration-300">
-        <div class="h-48 bg-[#F3F4F6] relative border-b border-gray-200 flex items-center justify-center">
-            <svg class="w-full h-full text-gray-300 p-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-width="1" d="M0 0 L24 24 M24 0 L0 24"></path>
-            </svg>
-        </div>
-        <div class="p-5">
-            <h3 class="font-bold text-[#8A008A] text-lg mb-3">{{ $event['nama'] }}</h3>
-            <div class="space-y-2">
-                <div class="flex items-center text-[10px] font-bold text-gray-700 uppercase">
-                    <span class="w-4 h-4 bg-[#8A008A] rounded-sm me-3"></span>
-                    {{ $event['waktu'] }}
-                </div>
-                <div class="flex items-center text-[10px] font-bold text-gray-700 uppercase">
-                    <span class="w-4 h-4 bg-[#8A008A] rounded-sm me-3"></span>
-                    Mulai Dari Rp {{ number_format($event['harga'], 0, ',', '.') }}
-                </div>
-            </div>
-        </div>
-    </div>
-    @endforeach
+<!-- BACKGROUND ORNAMEN -->
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+    <div class="absolute top-10 left-10 w-20 h-20 bg-purple-500 rounded-full blur-2xl"></div>
+    <div class="absolute bottom-20 right-20 w-32 h-32 bg-pink-400 rounded-full blur-2xl"></div>
 </div>
 
-        <div class="flex justify-center mb-20">
-            <button class="px-10 py-3 text-sm font-bold text-white bg-[#8A008A] rounded-full hover:bg-purple-800 shadow-lg transition flex items-center">
-                Lihat Event Lainnya <span class="ms-2">></span>
-            </button>
-        </div>
-    </main>
+<!-- NAVBAR -->
+<nav class="bg-[#8A008A]/90 backdrop-blur-md fixed w-full z-30 top-0 px-4 py-3 shadow-md">
+    <div class="flex justify-between items-center max-w-screen-2x1 mx-auto">
 
-    <footer class="bg-[#8A008A] text-white py-12">
-        <div class="max-w-screen-xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+        <a href="/" class="flex items-center space-x-2">
+            <img src="{{ asset('img/logo.png') }}" class="h-10">
+            <span class="text-white text-2xl font-bold">SIMETIX</span>
+        </a>
+
+        <div class="hidden md:flex space-x-8 text-white font-medium" id="navbar-sticky">
+            <a href="#" class="hover:text-gray-200">Event</a>
+            <a href="#" class="hover:text-gray-200">Tentang Kami</a>
+
+            <button class="bg-white text-[#8A008A] font-bold px-3  rounded-full shadow hover:bg-gray-100"  id="dropdownNavbarLink" data-dropdown-toggle="user-dropdown">
+                <svg class="w-2.5 h-2.5 " fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
+            </button>
+            <div id="user-dropdown" class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
+                <div class="px-4 py-3 text-black text-sm border-b border-default">
+                  <span class="block text-heading font-medium">Joseph McFall</span>
+                  <span class="block text-body truncate">name@flowbite.com</span>
+                </div>
+                    <ul class="py-2 text-sm text-gray-700">
+                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Event Saya</a></li>
+                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Buat Event</a></li>
+                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Pengaturan</a></li>
+                    </ul>
+                    <div class="py-1">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-bold text-red-600">Sign Out</a>
+                    </div>
+                </div>
+            </div>
+
+            <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-purple-700 focus:outline-none" aria-controls="navbar-sticky" aria-expanded="false">
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/></svg>
+        </button>
+        </div>
+</nav>
+
+<!-- MAIN -->
+<main class="mt-16 mx-auto ">
+
+
+    <!-- BANNER -->
+    <div class="relative h-64 md:h-[300px] mb-8  overflow-hidden shadow-lg">
+        <img src="{{ asset('img/banner.jpg') }}" class="w-full h-full object-cover">
+
+        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+        </div>
+    </div>
+
+
+    <!-- TITLE -->
+    <h2 class="text-3xl font-extrabold text-center text-[#8A008A] mb-8">
+        Sistem Manajemen Event & Ticketing
+    </h2>
+
+    <!-- SEARCH -->
+    <div class="flex max-w-2xl mx-auto mb-10 shadow rounded-xl overflow-hidden">
+        <input type="text"
+            class="w-full p-2 pl-4 border-none focus:ring-2 focus:ring-purple-500"
+            placeholder="Cari event...">
+
+        <button class="bg-[#8A008A] text-white px-6">
+            Search
+        </button>
+    </div>
+
+    <!-- GRID EVENT -->
+    <div class="max-w-screen-2xl px-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mx-auto mb-12">
+
+        @foreach ($events as $event)
+        <div class="w-[280px] bg-white rounded-2xl shadow-md overflow-hidden
+                    hover:shadow-xl hover:-translate-y-2
+                    transition duration-300 cursor-pointer">
+
+            <div class="h-48 overflow-hidden">
+                <img src="{{ asset('poster/' . $event['Poster']) }}"
+     class="w-full h-full object-cover hover:scale-110 transition duration-300">
+            </div>
+
+            <div class="p-5">
+                <h3 class="font-bold text-[#8A008A] text-lg mb-2">
+                    {{ $event['nama'] }}
+                </h3>
+
+                <p class="text-sm text-gray-500 mb-2">
+                    {{ $event['waktu'] }}
+                </p>
+
+                <p class="text-sm font-semibold text-purple-700">
+                    Rp {{ number_format($event['harga'], 0, ',', '.') }}
+                </p>
+            </div>
+        </div>
+        @endforeach
+
+    </div>
+
+    <!-- BUTTON -->
+    <div class="flex justify-center mb-20">
+        <button class="px-10 py-3 text-sm font-bold text-white
+                       bg-gradient-to-r from-purple-600 to-pink-500
+                       rounded-full shadow-lg
+                       hover:scale-105 hover:shadow-xl
+                       transition">
+            Lihat Event Lainnya →
+        </button>
+    </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-[#8A008A] text-white py-12">
+        <div class="max-w-screen-xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center ">
             <div>
-                <h4 class="font-bold mb-4 uppercase tracking-tighter">Events</h4>
-                <ul class="text-xs space-y-2 opacity-90 font-light">
+                <h4 class="font-bold mb-4 uppercase text-lg">Events</h4>
+                <ul class="text-sm space-y-2 opacity-80 font-medium">
                     <li><a href="#" class="hover:underline">Cari Event</a></li>
                     <li><a href="#" class="hover:underline">Buat Event</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="font-bold mb-4 uppercase tracking-tighter">Tentang Website</h4>
-                <ul class="text-xs space-y-2 opacity-90 font-light">
+                <h4 class="font-bold mb-4 uppercase text-lg">Tentang Website</h4>
+                <ul class="text-sm space-y-2 opacity-80 font-medium">
                     <li><a href="#" class="hover:underline">Tentang Kami</a></li>
-                    <li><a href="#" class="hover:underline">Tutorial Memesan Tiket</a></li>
+                    <li><a href="#" class="hover:underline">Tutorial Pesan</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="font-bold mb-4 uppercase tracking-tighter">Kategori Event</h4>
-                <ul class="text-xs space-y-2 opacity-90 font-light">
-                    <li><a href="#" class="hover:underline">Olahraga</a></li>
-                    <li><a href="#" class="hover:underline">Entertainment</a></li>
-                    <li><a href="#" class="hover:underline">Seminar</a></li>
-                    <li><a href="#" class="hover:underline">Bisnis</a></li>
-                    <li><a href="#" class="hover:underline">Other</a></li>
-                </ul>
+                <h4 class="font-bold mb-4 uppercase text-lg">Hubungi Kami</h4>
+             <ul class="text-sm space-y-2">
+                <li>Olahraga</li>
+                <li>Musik</li>
+                <li>Seminar</li>
+            </ul>
             </div>
         </div>
+        <div class="border-t border-purple-800 mt-5 pt-6 text-center text-xs opacity-60">
+            &copy; 2026 SIMETIX - All Rights Reserved.
+        </div>
     </footer>
+
 </body>
 </html>

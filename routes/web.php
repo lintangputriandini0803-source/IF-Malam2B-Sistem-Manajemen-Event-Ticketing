@@ -7,6 +7,14 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutUsLinnController;
 use App\Http\Controllers\RegisterController;
 
+Route::get('/detail_event', function () {
+    return view('detailEvent');
+});
+Route::get('/payment', function () {
+    return view('checkout');
+});
+
+
 Route::get('/about', [AboutUsLinnController::class, 'tampilkan']);
 Route::get('/event', [EventController::class, 'index']);
 Route::get('/', [HomeController::class, 'index']);
@@ -38,3 +46,4 @@ Route::get('/register', function () {
     return view('register');
 });
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
