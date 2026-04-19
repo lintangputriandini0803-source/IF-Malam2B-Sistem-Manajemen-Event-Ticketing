@@ -1,49 +1,51 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ListBarangController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\AboutUsLinnController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\CheckoutController;
 
-Route::get('/detail_event', function () {
-    return view('detailEvent');
-});
-Route::get('/payment', function () {
-    return view('checkout');
-});
+// ─── Public ───────────────────────────────────────────────────────────────────
+
+Route::get('/', [EventController::class, 'index'])->name('home');
+
+// Detail event — pakai slug agar URL lebih bersih, misal: /event/pagelaran-teknovasi
+Route::get('/event/{event:slug}', [EventController::class, 'show'])->name('event.show');
 
 
-Route::get('/about', [AboutUsLinnController::class, 'tampilkan']);
-Route::get('/event', [EventController::class, 'index']);
-Route::get('/', [HomeController::class, 'index']);
+Route::post('/event/{event:slug}/daftar', [RegistrationController::class, 'store'])->name('registration.store');
+Route::get('/registrasi/{regNumber}/sukses', [RegistrationController::class, 'success'])->name('registration.success');
+Route::post('/event/{event:slug}/checkout', [CheckoutController::class, 'store'])
+    ->name('checkout.store');
 
-Route::get('/welcome', function () {
-    return view('welcome');
-});
-Route::get('/user/{id}', function ($id) {
-    return 'User dengan ID ' . $id;
-});
 
-Route::prefix('admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return 'Admin Dashboard';
-    });
-
-    Route::get('/users', function () {
-        return 'Admin Users';
-    });
-});
-
-// Route::get('/listbarang/{id}/{nama}', function($id, $nama) {
-//    return view('list_barang', compact('id', 'nama'));
-//});
-
-Route::get('/barang', [ListBarangController::class, 'index']);
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 
 Route::get('/register', function () {
     return view('register');
-});
+})->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
-Route::get('/events', [EventController::class, 'index'])->name('events.index');
+
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// ─── Admin ────────────────────────────────────────────────────────────────────
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+});
+
+// ─── Panitia ──────────────────────────────────────────────────────────────────
+
+Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('panitia.dashboard');
+    })->name('dashboard');
+});
+
