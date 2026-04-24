@@ -1,25 +1,51 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    //untuk login
-    public function index(){
-        return view('login');
+    public function showLoginForm()
+    {
+        return view('auth.login');
     }
 
-    public function login(Request $request){
-        $username= $request->username;
-        $password= $request->password;
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
 
-        if ($username=='admin' && $password== 'admin'){
-            return redirect ('/dashboard');
-        } else {
-            return back()->with('error','Username atau password salah!');
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            if ($user->isAdmin()) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($user->isPanitia() && $user->isApproved()) {
+                return redirect()->route('panitia.dashboard');
+            }
+
+            // Panitia pending/rejected
+            Auth::logout();
+            return redirect('/')->with('login_error', 'Akun kamu belum disetujui admin.');
         }
+
+        return redirect('/')->with('login_error', 'Email atau password salah.');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
     }
 }

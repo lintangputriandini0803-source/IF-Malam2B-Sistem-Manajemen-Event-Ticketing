@@ -2,43 +2,45 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Panitia\EventController as PanitiaEventController;
+use App\Http\Controllers\Panitia\TicketTypeController;
+use App\Http\Controllers\Panitia\ParticipantController;
 
 // ─── Public ───────────────────────────────────────────────────────────────────
 
 Route::get('/', [EventController::class, 'index'])->name('home');
-
-// Detail event — pakai slug agar URL lebih bersih, misal: /event/pagelaran-teknovasi
 Route::get('/event/{event:slug}', [EventController::class, 'show'])->name('event.show');
-
-
-Route::post('/event/{event:slug}/daftar', [RegistrationController::class, 'store'])->name('registration.store');
-Route::get('/registrasi/{regNumber}/sukses', [RegistrationController::class, 'success'])->name('registration.success');
-Route::post('/event/{event:slug}/checkout', [CheckoutController::class, 'store'])
-    ->name('checkout.store');
-
+Route::post('/event/{event:slug}/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
 Route::get('/register', function () {
-    return view('register');
+    return view('auth.register');
 })->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Akses /login langsung → redirect ke home, modal terbuka otomatis
+Route::get('/login', function () {
+    return redirect('/')->with('open_login_modal', true);
+})->name('login');
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+    Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
+    Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
+    Route::resource('/categories', CategoryController::class);
 });
 
 // ─── Panitia ──────────────────────────────────────────────────────────────────
@@ -47,5 +49,15 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
     Route::get('/dashboard', function () {
         return view('panitia.dashboard');
     })->name('dashboard');
+
+    Route::get('/events', [PanitiaEventController::class, 'index'])->name('events.index');
+    Route::get('/events/create', [PanitiaEventController::class, 'create'])->name('events.create');
+    Route::post('/events', [PanitiaEventController::class, 'store'])->name('events.store');
+    Route::patch('/events/{event}/publish', [PanitiaEventController::class, 'publish'])->name('events.publish');
+    Route::resource('/events/{event}/tickets', TicketTypeController::class)->names('tickets');
+    Route::get('/events/{event}/participants', [ParticipantController::class, 'index'])->name('participants');
 });
 
+Route::get('/tes', function () {
+    return view('tes');
+});

@@ -6,6 +6,10 @@
     <title>Checkout - SIMETIX</title>
     @vite(['resources/css/app.css','resources/js/app.js'])
     <style>
+
+        button, a, .cursor-pointer { cursor: pointer; }
+        body { background: rgb(216, 216, 216); }
+
         body { background: #f3eef8; }
         .step-active { background: #8A008A; color: white; }
         .step-done { background: #8A008A; color: white; }
@@ -191,15 +195,12 @@
                 <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                 </svg>
-                <span class="font-semibold">Bank Transfer (Virtual Akun)</span>
+                <span class="font-semibold">Bank Transfer</span>
             </div>
 
             @foreach([
-                ['name' => 'BCA Virtual Account', 'color' => 'text-blue-700', 'short' => 'BCA'],
-                ['name' => 'Mandiri Virtual Account', 'color' => 'text-yellow-600', 'short' => 'MDR'],
-                ['name' => 'BNI Virtual Account', 'color' => 'text-orange-600', 'short' => 'BNI'],
-                ['name' => 'BRI Virtual Account', 'color' => 'text-blue-800', 'short' => 'BRI'],
-                ['name' => 'Permata Virtual Account', 'color' => 'text-green-600', 'short' => 'PMT'],
+                ['name' => 'BCA (0001101010)', 'color' => 'text-blue-700', 'short' => 'BCA'],
+                ['name' => 'Mandiri (99090278890)', 'color' => 'text-yellow-600', 'short' => 'MDR'],
             ] as $bank)
             <label class="flex items-center gap-3 py-3 cursor-pointer border-b border-gray-50 last:border-0">
                 <input type="radio" name="payment_method" value="{{ $bank['name'] }}"
@@ -249,19 +250,19 @@
             <h3 class="font-bold text-base mb-4">Detail Pemesan</h3>
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <p class="text-xs text-gray-400 flex items-center gap-1">👤 Nama</p>
+                    <p class="text-xs text-gray-400 flex items-center gap-1"> Nama</p>
                     <p class="font-medium text-sm mt-1" id="summary-name">-</p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-400 flex items-center gap-1">🔖 Referensi Pemesanan</p>
+                    <p class="text-xs text-gray-400 flex items-center gap-1"> Referensi Pemesanan</p>
                     <p class="font-medium text-sm mt-1">{{ 'XX-' . rand(10000, 99999) }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-400 flex items-center gap-1">✉️ Email</p>
+                    <p class="text-xs text-gray-400 flex items-center gap-1"> Email</p>
                     <p class="font-medium text-sm mt-1" id="summary-email">-</p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-400 flex items-center gap-1">📅 Tanggal Pemesanan</p>
+                    <p class="text-xs text-gray-400 flex items-center gap-1"> Tanggal Pemesanan</p>
                     <p class="font-medium text-sm mt-1">{{ now()->format('d M Y') }}</p>
                 </div>
             </div>

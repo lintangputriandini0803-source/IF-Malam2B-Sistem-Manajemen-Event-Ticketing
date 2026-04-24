@@ -8,12 +8,13 @@
     <style>
         button, a, .cursor-pointer { cursor: pointer; }
         body { background: rgb(216, 216, 216); }
+        html {
+    overflow-y: scroll;}
     </style>
 </head>
 
 <body class="font-sans text-gray-900 relative overflow-x-hidden">
 
-<!-- BACKGROUND ORNAMEN -->
 <div class="absolute inset-0 opacity-10 pointer-events-none">
     <div class="absolute top-10 left-10 w-20 h-20 bg-purple-500 rounded-full blur-2xl"></div>
     <div class="absolute bottom-20 right-20 w-32 h-32 bg-pink-400 rounded-full blur-2xl"></div>
@@ -32,23 +33,55 @@
             <a href="{{ route('home') }}" class="hover:text-gray-200">Event</a>
             <a href="#" class="hover:text-gray-200">Tentang Kami</a>
 
-            <div class="relative">
-                <button class="bg-white text-[#8A008A] font-bold px-3 py-1 rounded-full shadow hover:bg-gray-100"
-                        id="dropdownNavbarLink" data-dropdown-toggle="user-dropdown">
+            @auth
+            <!-- Sudah login -->
+            <div class="relative" x-data="{ open: false }">
+                <button onclick="document.getElementById('user-dropdown').classList.toggle('hidden')"
+                        class="bg-white text-[#8A008A] font-bold px-3 py-1 rounded-full shadow hover:bg-gray-100 flex items-center gap-1">
+                    {{ auth()->user()->name }}
                     <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
                     </svg>
                 </button>
-                <div id="user-dropdown" class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 absolute right-0 mt-2">
-                    <div class="px-4 py-3 text-black text-sm border-b">
-                        <span class="block font-medium">Anda Belum Login</span>
-                        <span class="block text-gray-500 truncate">-</span>
+                <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-lg shadow z-50">
+                    <div class="px-4 py-3 text-sm border-b">
+                        <p class="font-medium text-gray-800">{{ auth()->user()->name }}</p>
+                        <p class="text-gray-500 truncate">{{ auth()->user()->email }}</p>
+                    </div>
+                    <ul class="py-2 text-sm text-gray-700">
+                        @if(auth()->user()->isAdmin())
+                        <li><a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 hover:bg-gray-100">Dashboard</a></li>
+                        @elseif(auth()->user()->isPanitia())
+                        <li><a href="{{ route('panitia.dashboard') }}" class="block px-4 py-2 hover:bg-gray-100">Dashboard</a></li>
+                        @endif
+                    </ul>
+                    <div class="py-1 border-t">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 font-bold">
+                                Sign Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @else
+            <!-- Belum login -->
+            <div class="relative">
+                <button onclick="document.getElementById('user-dropdown').classList.toggle('hidden')"
+                        class="bg-white text-[#8A008A] font-bold px-3 py-1 rounded-full shadow hover:bg-gray-100">
+                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                    </svg>
+                </button>
+                <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-lg shadow z-50">
+                    <div class="px-4 py-3 text-sm border-b">
+                        <p class="font-medium text-gray-800">Anda Belum Login</p>
                     </div>
                     <ul class="py-2 text-sm text-gray-700">
                         <li>
-                            <a data-modal-target="authentication-modal"
-                               data-modal-toggle="authentication-modal"
-                               class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">Login</a>
+                            <button onclick="openLoginModal()"
+                                    class="block w-full text-left px-4 py-2 hover:bg-gray-100">Login</button>
                         </li>
                         <li>
                             <a href="{{ route('register') }}" class="block px-4 py-2 hover:bg-gray-100">Daftar sebagai Panitia</a>
@@ -56,9 +89,10 @@
                     </ul>
                 </div>
             </div>
+            @endauth
         </div>
 
-        <button data-collapse-toggle="navbar-mobile" type="button"
+        <button onclick="document.getElementById('navbar-mobile').classList.toggle('hidden')"
                 class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-purple-700">
             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
@@ -70,50 +104,80 @@
 <!-- MAIN -->
 <main class="mt-16 mx-auto">
 
-    <!-- BANNER -->
-    <div class="relative h-64 md:h-[300px] mb-8 overflow-hidden shadow-lg">
-        <img src="{{ asset('img/banner.jpg') }}" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <h1 class="text-white text-4xl font-extrabold drop-shadow-lg">Temukan Event Terbaik</h1>
+    <!-- NOTIFIKASI SUCCESS / ERROR -->
+    @if(session('success'))
+    <div class="max-w-2xl mx-auto mt-4 px-4">
+        <div class="bg-green-100 text-green-700 px-4 py-3 rounded-xl text-sm">
+            {{ session('success') }}
+        </div>
+    </div>
+    @endif
+
+    @if(session('login_error'))
+<div class="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4" style="z-index: 999">
+    <div class="bg-red-100 text-red-700 px-4 py-3 rounded-xl text-sm shadow-md">
+        {{ session('login_error') }}
+    </div>
+</div>
+@endif
+
+    <!-- BANNER CAROUSEL -->
+<div class="relative h-64 md:h-[300px] mb-8 overflow-hidden shadow-lg" id="carousel">
+
+    {{-- Slides --}}
+    <div class="carousel-slides flex transition-transform duration-500 ease-in-out h-full" id="carousel-slides">
+        <div class="carousel-slide min-w-full h-full relative flex-shrink-0">
+            <img src="{{ asset('poster/image4.png') }}" class="w-full h-full object-cover">
+        </div>
+        <div class="carousel-slide min-w-full h-full relative flex-shrink-0">
+            <img src="{{ asset('poster/image5.png') }}" class="w-full h-full object-cover">
+        </div>
+        <div class="carousel-slide min-w-full h-full relative flex-shrink-0">
+            <img src="{{ asset('poster/image6.png') }}" class="w-full h-full object-cover">
         </div>
     </div>
 
-    <!-- TITLE -->
-    <h2 class="text-3xl font-extrabold text-center text-[#8A008A] mb-8">
-        Sistem Manajemen Event & Ticketing
-    </h2>
+    {{-- Tombol Prev --}}
+    <button onclick="prevSlide()"
+            class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-9 h-9 flex items-center justify-center z-10 transition">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </button>
 
-    <!-- SEARCH (terhubung ke controller) -->
-    <form method="GET" action="{{ route('home') }}" class="flex max-w-2xl mx-auto mb-10 shadow rounded-xl overflow-hidden">
-        <input type="text"
-               name="search"
-               value="{{ request('search') }}"
-               class="w-full p-2 pl-4 border-none focus:ring-2 focus:ring-purple-500"
-               placeholder="Cari event, lokasi, atau kategori...">
-        <button type="submit" class="bg-[#8A008A] text-white px-6 hover:bg-purple-700 transition">
-            Cari
-        </button>
-    </form>
+    {{-- Tombol Next --}}
+    <button onclick="nextSlide()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-9 h-9 flex items-center justify-center z-10 transition">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+    </button>
 
-    <!-- INFO HASIL SEARCH -->
+    {{-- Dots --}}
+    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10" id="carousel-dots"></div>
+</div>
+
+<!-- SEARCH -->
+<form method="GET" action="{{ route('home') }}" class="flex max-w-2xl mx-auto mb-15 shadow rounded-xl overflow-hidden" >
+    <input type="text" name="search" value="{{ request('search') }}"
+           class="w-full p-2 pl-4 border-none focus:ring-2 focus:ring-purple-500"
+           placeholder="Cari event, lokasi, atau kategori...">
+    <button type="submit" class="bg-[#8A008A] text-white px-6 hover:bg-purple-700 transition">Cari</button>
+</form>
+
+
     @if(request('search'))
     <p class="text-center text-gray-600 mb-6">
-        Hasil pencarian untuk: <strong>"{{ request('search') }}"</strong>
-        ({{ $events->total() }} event ditemukan)
+        Hasil untuk: <strong>"{{ request('search') }}"</strong> ({{ $events->total() }} event)
         <a href="{{ route('home') }}" class="text-purple-600 ml-2 hover:underline">Reset</a>
     </p>
     @endif
 
     <!-- GRID EVENT -->
     <div class="max-w-screen-2xl px-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mx-auto mb-12">
-
         @forelse ($events as $event)
-        {{-- Seluruh card bisa diklik ke halaman detail --}}
         <a href="{{ route('event.show', $event->slug) }}" class="block">
-            <div class="w-full bg-white rounded-2xl shadow-md overflow-hidden
-                        hover:shadow-xl hover:-translate-y-2
-                        transition duration-300 cursor-pointer">
-
+            <div class="w-full bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-2 transition duration-300">
                 <div class="h-48 overflow-hidden">
                     @if($event->poster)
                         <img src="{{ asset('poster/' . $event->poster) }}"
@@ -125,20 +189,10 @@
                         </div>
                     @endif
                 </div>
-
                 <div class="p-5">
-                    <h3 class="font-bold text-[#8A008A] text-lg mb-2 line-clamp-2">
-                        {{ $event->title }}
-                    </h3>
-
-                    <p class="text-sm text-gray-500 mb-1">
-                        📅 {{ $event->event_date }}
-                    </p>
-
-                    <p class="text-sm text-gray-500 mb-2">
-                        📍 {{ $event->location }}
-                    </p>
-
+                    <h3 class="font-bold text-[#8A008A] text-lg mb-2 line-clamp-2">{{ $event->title }}</h3>
+                    <p class="text-sm text-gray-500 mb-1">📅 {{ $event->event_date }}</p>
+                    <p class="text-sm text-gray-500 mb-2">📍 {{ $event->location }}</p>
                     @if($event->ticketTypes->isNotEmpty())
                         <p class="text-sm font-semibold text-purple-700">
                             Mulai Rp {{ number_format($event->ticketTypes->min('price'), 0, ',', '.') }}
@@ -158,26 +212,10 @@
             @endif
         </div>
         @endforelse
-
     </div>
 
-    <!-- PAGINATION -->
     @if($events->hasPages())
-    <div class="flex justify-center mb-10">
-        {{ $events->withQueryString()->links() }}
-    </div>
-    @endif
-
-    <!-- BUTTON LIHAT LAINNYA (hanya muncul jika tidak sedang search) -->
-    @if(!request('search'))
-    <div class="flex justify-center mb-20">
-        <a href="{{ route('home') }}"
-           class="px-10 py-3 text-sm font-bold text-white
-                  bg-gradient-to-r from-purple-600 to-pink-500
-                  rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition">
-            Lihat Event Lainnya →
-        </a>
-    </div>
+    <div class="flex justify-center mb-10">{{ $events->withQueryString()->links() }}</div>
     @endif
 
 </main>
@@ -202,9 +240,7 @@
         <div>
             <h4 class="font-bold mb-4 uppercase text-lg">Kategori</h4>
             <ul class="text-sm space-y-2 opacity-80 font-medium">
-                <li>Olahraga</li>
-                <li>Musik</li>
-                <li>Seminar</li>
+                <li>Olahraga</li><li>Musik</li><li>Seminar</li>
             </ul>
         </div>
     </div>
@@ -213,52 +249,167 @@
     </div>
 </footer>
 
-<!-- MODAL LOGIN -->
-<div id="authentication-modal" tabindex="-1" aria-hidden="true"
-     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative p-4 w-full max-w-md max-h-full">
-        <div class="relative bg-white rounded-2xl shadow-sm p-4 md:p-6">
-            <div class="flex items-center justify-between border-b pb-4 mb-4">
-                <h3 class="text-lg font-medium">Login</h3>
-                <button type="button" data-modal-hide="authentication-modal"
-                        class="text-gray-400 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center">
-                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+<!-- ═══ MODAL LOGIN ═══ -->
+<div id="login-modal"
+     class="fixed inset-0 z-50 flex items-center justify-center invisible transition-all duration-300">
+
+    <div id="modal-overlay"
+         class="absolute inset-0 bg-black/0 backdrop-blur-none transition-all duration-300"></div>
+
+    <div id="modal-content"
+         class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-300">
+
+        <button onclick="closeLoginModal()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/>
+            </svg>
+        </button>
+
+        <h3 class="text-xl font-bold text-gray-800 mb-1">Login</h3>
+        <p class="text-sm text-gray-500 mb-5">Masuk sebagai Admin atau Panitia</p>
+
+        <form action="{{ route('login.post') }}" method="POST">
+            @csrf
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" name="email" value="{{ old('email') }}" required
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                       placeholder="example@email.com">
             </div>
-            <form action="{{ route('login.post') }}" method="POST">
-                @csrf
-                <div class="mb-4">
-                    <label for="email" class="block mb-2 text-sm font-medium">Email</label>
-                    <input type="email" name="email" id="email"
-                           class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5"
-                           placeholder="example@email.com" required>
-                </div>
-                <div class="mb-4">
-                    <label for="password" class="block mb-2 text-sm font-medium">Password</label>
-                    <input type="password" name="password" id="password"
-                           class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5"
-                           placeholder="••••••••" required>
-                </div>
-                <div class="flex items-center justify-between mb-6">
-                    <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="remember" class="rounded"> Remember me
-                    </label>
-                    <a href="#" class="text-sm text-purple-700 hover:underline">Lupa password?</a>
-                </div>
-                <button type="submit"
-                        class="w-full text-white bg-[#8A008A] hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-3">
-                    Login
-                </button>
-                <p class="text-sm text-gray-500 text-center">
-                    Belum punya akun?
-                    <a href="{{ route('register') }}" class="text-purple-700 hover:underline">Daftar sebagai Panitia</a>
-                </p>
-            </form>
-        </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" name="password" required
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                       placeholder="••••••••">
+            </div>
+            <button type="submit"
+                    class="w-full bg-[#8A008A] hover:bg-purple-700 text-white font-semibold py-2.5 rounded-lg transition text-sm mb-3">
+                Login
+            </button>
+        </form>
     </div>
 </div>
+</div>
+
+<script>
+    function openLoginModal() {
+        document.getElementById('login-modal').classList.remove('hidden');
+        document.getElementById('user-dropdown').classList.add('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLoginModal() {
+        document.getElementById('login-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // Tutup modal kalau klik di luar
+    document.getElementById('login-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeLoginModal();
+    });
+
+    // Tutup dropdown kalau klik di luar
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('user-dropdown');
+        if (dropdown && !e.target.closest('[onclick*="user-dropdown"]') && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Auto-buka modal jika ada session open_login_modal atau login_error
+    @if(session('open_login_modal') || session('login_error') || $errors->has('email'))
+        window.addEventListener('DOMContentLoaded', openLoginModal);
+    @endif
+</script>
+<script>
+    function openLoginModal() {
+    const modal = document.getElementById('login-modal');
+    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+
+    // 1. Tampilkan container utama
+    modal.classList.remove('invisible');
+
+    // 2. Beri jeda sangat singkat agar browser sempat merender perubahan sebelum animasi
+    setTimeout(() => {
+        // Overlay jadi hitam transparan
+        overlay.classList.replace('bg-black/0', 'bg-black/50');
+        overlay.classList.replace('backdrop-blur-none', 'backdrop-blur-sm');
+
+        // Content jadi ukuran normal dan muncul
+        content.classList.replace('scale-95', 'scale-100');
+        content.classList.replace('opacity-0', 'opacity-100');
+    }, 10);
+
+    document.getElementById('user-dropdown').classList.add('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLoginModal() {
+    const modal = document.getElementById('login-modal');
+    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+
+    // 1. Kembalikan animasi ke kondisi awal
+    overlay.classList.replace('bg-black/50', 'bg-black/0');
+    overlay.classList.replace('backdrop-blur-sm', 'backdrop-blur-none');
+
+    content.classList.replace('scale-100', 'scale-95');
+    content.classList.replace('opacity-100', 'opacity-0');
+
+    // 2. Sembunyikan container setelah animasi selesai (300ms sesuai duration-300)
+    setTimeout(() => {
+        modal.classList.add('invisible');
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// Update event listener klik di luar modal
+document.getElementById('modal-overlay').addEventListener('click', closeLoginModal);
+</script>
+<script>
+    const slides = document.querySelectorAll('.carousel-slide');
+    const slidesContainer = document.getElementById('carousel-slides');
+    const dotsContainer = document.getElementById('carousel-dots');
+    let current = 0;
+    let autoSlide;
+
+    // Buat dots
+    slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === 0 ? 'bg-white scale-125' : 'bg-white/50'}`;
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+    });
+
+    function goToSlide(index) {
+        current = index;
+        slidesContainer.style.transform = `translateX(-${current * 100}%)`;
+        document.querySelectorAll('#carousel-dots button').forEach((dot, i) => {
+            dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === current ? 'bg-white scale-125' : 'bg-white/50'}`;
+        });
+    }
+
+    function nextSlide() {
+        goToSlide((current + 1) % slides.length);
+        resetAuto();
+    }
+
+    function prevSlide() {
+        goToSlide((current - 1 + slides.length) % slides.length);
+        resetAuto();
+    }
+
+    function resetAuto() {
+        clearInterval(autoSlide);
+        autoSlide = setInterval(nextSlide, 4000);
+    }
+
+    // Auto-play tiap 4 detik
+    autoSlide = setInterval(nextSlide, 4000);
+</script>
+
 
 </body>
 </html>
