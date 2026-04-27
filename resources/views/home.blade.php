@@ -31,7 +31,7 @@
 
         <div class="hidden md:flex items-center space-x-8 text-white font-medium">
             <a href="{{ route('homepage') }}" class="hover:text-gray-200">Event</a>
-            <a href="#" class="hover:text-gray-200">Tentang Kami</a>
+            <a href="{{ route('about') }}" class="hover:text-gray-200">About Us</a>
             <button onclick="openLoginModal()" class="bg-white rounded px-3 text-[#8A008A] hover:bg-gray-100">Login</button>
         </div>
 </nav>
