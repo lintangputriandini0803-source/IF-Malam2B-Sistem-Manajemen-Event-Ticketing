@@ -32,4 +32,25 @@ class EventController extends Controller
         $event->load(['ticketTypes', 'category', 'user']);
         return view('detailEvent', compact('event'));
     }
+
+    public function event(Request $request)
+    {
+        $query = Event::with(['ticketTypes', 'category'])
+            ->where('status', 'published');
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('location', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('category', function ($q2) use ($request) {
+                      $q2->where('name', 'like', '%' . $request->search . '%');
+                  });
+            });
+        }
+
+        $events = $query->latest()->paginate(8);
+        return view('homepage', compact('events'));
+    }
+
+
 }

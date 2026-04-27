@@ -15,6 +15,7 @@ use App\Http\Controllers\Panitia\ParticipantController;
 // ─── Public ───────────────────────────────────────────────────────────────────
 
 Route::get('/', [EventController::class, 'index'])->name('home');
+Route::get('/event', [EventController::class, 'event'])->name('homepage');
 Route::get('/event/{event:slug}', [EventController::class, 'show'])->name('event.show');
 Route::post('/event/{event:slug}/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
@@ -37,9 +38,13 @@ Route::get('/login', function () {
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
-    Route::get('/users', [UserController::class, 'index'])->name('users');
+
+    // User management
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
     Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
+
+    // Categories
     Route::resource('/categories', CategoryController::class);
 });
 
@@ -50,14 +55,16 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
         return view('panitia.dashboard');
     })->name('dashboard');
 
+    // Events CRUD
     Route::get('/events', [PanitiaEventController::class, 'index'])->name('events.index');
     Route::get('/events/create', [PanitiaEventController::class, 'create'])->name('events.create');
     Route::post('/events', [PanitiaEventController::class, 'store'])->name('events.store');
+    Route::get('/events/{event}/edit', [PanitiaEventController::class, 'edit'])->name('events.edit');
+    Route::put('/events/{event}', [PanitiaEventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{event}', [PanitiaEventController::class, 'destroy'])->name('events.destroy');
     Route::patch('/events/{event}/publish', [PanitiaEventController::class, 'publish'])->name('events.publish');
+
+    // Tickets & Participants
     Route::resource('/events/{event}/tickets', TicketTypeController::class)->names('tickets');
     Route::get('/events/{event}/participants', [ParticipantController::class, 'index'])->name('participants');
-});
-
-Route::get('/tes', function () {
-    return view('tes');
 });
