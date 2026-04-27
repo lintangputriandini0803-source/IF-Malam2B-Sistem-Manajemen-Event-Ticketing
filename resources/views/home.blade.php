@@ -7,9 +7,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         button, a, .cursor-pointer { cursor: pointer; }
-        body { background: rgb(216, 216, 216); }
+        body { background: rgb(234, 234, 234); }
         html {
-    overflow-y: scroll;}
+        overflow-y: scroll;}
     </style>
 </head>
 
@@ -21,7 +21,7 @@
 </div>
 
 <!-- NAVBAR -->
-<nav class="bg-[#8A008A]/90 backdrop-blur-md fixed w-full z-30 top-0 px-4 py-3 shadow-md">
+<nav class="bg-[#8A008A] backdrop-blur-md fixed w-full z-30 top-0 px-4 py-3 shadow-md">
     <div class="flex justify-between items-center max-w-screen-2xl mx-auto">
 
         <a href="{{ route('home') }}" class="flex items-center space-x-2">
@@ -32,73 +32,8 @@
         <div class="hidden md:flex items-center space-x-8 text-white font-medium">
             <a href="{{ route('home') }}" class="hover:text-gray-200">Event</a>
             <a href="#" class="hover:text-gray-200">Tentang Kami</a>
-
-            @auth
-            <!-- Sudah login -->
-            <div class="relative" x-data="{ open: false }">
-                <button onclick="document.getElementById('user-dropdown').classList.toggle('hidden')"
-                        class="bg-white text-[#8A008A] font-bold px-3 py-1 rounded-full shadow hover:bg-gray-100 flex items-center gap-1">
-                    {{ auth()->user()->name }}
-                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 10 6">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                    </svg>
-                </button>
-                <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-lg shadow z-50">
-                    <div class="px-4 py-3 text-sm border-b">
-                        <p class="font-medium text-gray-800">{{ auth()->user()->name }}</p>
-                        <p class="text-gray-500 truncate">{{ auth()->user()->email }}</p>
-                    </div>
-                    <ul class="py-2 text-sm text-gray-700">
-                        @if(auth()->user()->isAdmin())
-                        <li><a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 hover:bg-gray-100">Dashboard</a></li>
-                        @elseif(auth()->user()->isPanitia())
-                        <li><a href="{{ route('panitia.dashboard') }}" class="block px-4 py-2 hover:bg-gray-100">Dashboard</a></li>
-                        @endif
-                    </ul>
-                    <div class="py-1 border-t">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 font-bold">
-                                Sign Out
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            @else
-            <!-- Belum login -->
-            <div class="relative">
-                <button onclick="document.getElementById('user-dropdown').classList.toggle('hidden')"
-                        class="bg-white text-[#8A008A] font-bold px-3 py-1 rounded-full shadow hover:bg-gray-100">
-                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 10 6">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                    </svg>
-                </button>
-                <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-lg shadow z-50">
-                    <div class="px-4 py-3 text-sm border-b">
-                        <p class="font-medium text-gray-800">Anda Belum Login</p>
-                    </div>
-                    <ul class="py-2 text-sm text-gray-700">
-                        <li>
-                            <button onclick="openLoginModal()"
-                                    class="block w-full text-left px-4 py-2 hover:bg-gray-100">Login</button>
-                        </li>
-                        <li>
-                            <a href="{{ route('register') }}" class="block px-4 py-2 hover:bg-gray-100">Daftar sebagai Panitia</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            @endauth
+            <button onclick="openLoginModal()" class="bg-white rounded px-3 text-[#8A008A] hover:bg-gray-100">Login</button>
         </div>
-
-        <button onclick="document.getElementById('navbar-mobile').classList.toggle('hidden')"
-                class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-purple-700">
-            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-            </svg>
-        </button>
-    </div>
 </nav>
 
 <!-- MAIN -->
@@ -122,7 +57,7 @@
 @endif
 
     <!-- BANNER CAROUSEL -->
-<div class="relative h-64 md:h-[300px] mb-8 overflow-hidden shadow-lg" id="carousel">
+<div class="relative h-64 md:h-[450px] shadow-sm overflow-hidden  mb-5" id="carousel">
 
     {{-- Slides --}}
     <div class="carousel-slides flex transition-transform duration-500 ease-in-out h-full" id="carousel-slides">
@@ -158,13 +93,18 @@
 </div>
 
 <!-- SEARCH -->
-<form method="GET" action="{{ route('home') }}" class="flex max-w-2xl mx-auto mb-15 shadow rounded-xl overflow-hidden" >
+<form method="GET" action="{{ route('home') }}" class="flex max-w-2xl  mx-auto mb-5 shadow rounded-xl overflow-hidden" >
     <input type="text" name="search" value="{{ request('search') }}"
-           class="w-full p-2 pl-4 border-none focus:ring-2 focus:ring-purple-500"
-           placeholder="Cari event, lokasi, atau kategori...">
-    <button type="submit" class="bg-[#8A008A] text-white px-6 hover:bg-purple-700 transition">Cari</button>
+    class="w-full p-2 pl-4 border-none focus:ring-2 focus:ring-purple-500"
+    placeholder="Cari event, lokasi, atau kategori...">
+    <button class="px-5"><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+<path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
+</svg>
+</button>
+    <button type="submit" class="bg-[#8A008A] text-white px-6 hover:bg-purple-700 transition">Search</button>
 </form>
 
+<p class="text-center font-bold max-w-60 mb-10 mx-auto border-b-1  pb-1">Popular Events In Polibatam</p>
 
     @if(request('search'))
     <p class="text-center text-gray-600 mb-6">
@@ -177,7 +117,7 @@
     <div class="max-w-screen-2xl px-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mx-auto mb-12">
         @forelse ($events as $event)
         <a href="{{ route('event.show', $event->slug) }}" class="block">
-            <div class="w-full bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-2 transition duration-300">
+            <div class="w-full bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-2 transition duration-300 flex flex-col h-full">
                 <div class="h-48 overflow-hidden">
                     @if($event->poster)
                         <img src="{{ asset('poster/' . $event->poster) }}"
@@ -189,26 +129,28 @@
                         </div>
                     @endif
                 </div>
-                <div class="p-5">
-                    <h3 class="font-bold text-[#8A008A] text-lg mb-2 line-clamp-2">{{ $event->title }}</h3>
-                    <p class="text-sm text-gray-500 mb-1">📅 {{ $event->event_date }}</p>
-                    <p class="text-sm text-gray-500 mb-2">📍 {{ $event->location }}</p>
-                    @if($event->ticketTypes->isNotEmpty())
-                        <p class="text-sm font-semibold text-purple-700">
-                            Mulai Rp {{ number_format($event->ticketTypes->min('price'), 0, ',', '.') }}
-                        </p>
-                    @else
-                        <p class="text-sm font-semibold text-green-600">Gratis</p>
-                    @endif
-                </div>
-            </div>
+                <div class="p-5 flex flex-col flex-1">
+        <h3 class="font-bold text-[#8A008A] text-lg mb-2 line-clamp-2">{{ $event->title }}</h3>
+        <div class="mt-auto">
+            <p class="text-sm text-gray-500 mb-1">📅 {{ $event->event_date }}</p>
+            <p class="text-sm text-gray-500 mb-2">📍 {{ $event->location }}</p>
+            @if($event->ticketTypes->isNotEmpty())
+                <p class="text-sm font-semibold text-purple-700">
+                    Mulai Rp {{ number_format($event->ticketTypes->min('price'), 0, ',', '.') }}
+                </p>
+            @else
+                <p class="text-sm font-semibold text-green-600">Gratis</p>
+            @endif
+        </div>
+    </div>
+</div>
         </a>
         @empty
         <div class="col-span-4 text-center py-20 text-gray-500">
             <p class="text-5xl mb-4">🔍</p>
             <p class="text-lg font-semibold">Tidak ada event ditemukan.</p>
             @if(request('search'))
-                <a href="{{ route('home') }}" class="text-purple-600 hover:underline mt-2 inline-block">Lihat semua event</a>
+                <a href="{{ route('homepage') }}" class="text-purple-600 hover:underline mt-2 inline-block">Lihat semua event</a>
             @endif
         </div>
         @endforelse
@@ -218,16 +160,26 @@
     <div class="flex justify-center mb-10">{{ $events->withQueryString()->links() }}</div>
     @endif
 
+    <div class="flex justify-center mb-10">
+        <a href="{{ route('homepage') }}"
+           class="px-7 py-2 text-sm font-bold text-white
+                  bg-[#8A008A]
+                  rounded shadow-lg hover:scale-105 hover:shadow-xl transition">
+            Lihat Event Lainnya →
+        </a>
+    </div>
+</div>
+
 </main>
 
 <!-- FOOTER -->
-<footer class="bg-[#8A008A] text-white py-12">
+<footer class="bg-[#8A008A] text-white pt-10 pb-3">
     <div class="max-w-screen-xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
         <div>
             <h4 class="font-bold mb-4 uppercase text-lg">Events</h4>
             <ul class="text-sm space-y-2 opacity-80 font-medium">
-                <li><a href="{{ route('home') }}" class="hover:underline">Cari Event</a></li>
-                <li><a href="{{ route('register') }}" class="hover:underline">Buat Event</a></li>
+                <li><a href="{{ route('homepage') }}" class="hover:underline">Cari Event</a></li>
+                <li><a onclick="openLoginModal()" class="hover:underline">Buat Event</a></li>
             </ul>
         </div>
         <div>
@@ -239,8 +191,11 @@
         </div>
         <div>
             <h4 class="font-bold mb-4 uppercase text-lg">Kategori</h4>
-            <ul class="text-sm space-y-2 opacity-80 font-medium">
-                <li>Olahraga</li><li>Musik</li><li>Seminar</li>
+             <ul class="text-sm space-y-2 opacity-80 font-medium">
+                <li><a href="#" class="hover:underline">Olahraga</a></li>
+                <li><a href="#" class="hover:underline">Seminar</a></li>
+                <li><a href="#" class="hover:underline">Musik</a></li>
+
             </ul>
         </div>
     </div>
@@ -281,7 +236,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input type="password" name="password" required
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                       placeholder="••••••••">
+                       placeholder="Password">
             </div>
             <button type="submit"
                     class="w-full bg-[#8A008A] hover:bg-purple-700 text-white font-semibold py-2.5 rounded-lg transition text-sm mb-3">
@@ -408,6 +363,10 @@ document.getElementById('modal-overlay').addEventListener('click', closeLoginMod
 
     // Auto-play tiap 4 detik
     autoSlide = setInterval(nextSlide, 4000);
+
+    document.querySelectorAll('*').forEach(el => {
+    el.style.outline = '1px solid red';
+});
 </script>
 
 
