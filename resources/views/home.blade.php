@@ -364,9 +364,6 @@ document.getElementById('modal-overlay').addEventListener('click', closeLoginMod
     // Auto-play tiap 4 detik
     autoSlide = setInterval(nextSlide, 4000);
 
-    document.querySelectorAll('*').forEach(el => {
-    el.style.outline = '1px solid red';
-});
 </script>
 
 
