@@ -97,7 +97,7 @@
                     </td>
                     <td style="padding:12px 0;font-size:12px;color:#9ca3af">{{ $user->created_at->format('d M Y') }}</td>
                     <td style="padding:12px 0;text-align:right">
-                        <a href="{{ route('admin.users.edit', $user->id) }}" style="font-size:12px;color:#6B0080;font-weight:600;text-decoration:none">Edit</a>
+                        <a href="{{ route('admin.users.index') }}" style="font-size:12px;color:#6B0080;font-weight:600;text-decoration:none">Lihat →</a>
                     </td>
                 </tr>
                 @empty
@@ -123,8 +123,8 @@
         </div>
         <div style="background:white;border-radius:14px;padding:20px">
             <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:14px">Quick Action</h2>
-            <a href="{{ route('admin.users.create') }}" style="display:flex;align-items:center;padding:10px 14px;background:#6B0080;color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:8px">+ Tambah Pengguna</a>
-            <a href="{{ route('admin.events.index') }}" style="display:flex;align-items:center;padding:10px 14px;background:#eff6ff;color:#2563eb;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:8px">🗓 Kelola Event</a>
+            <a href="{{ route('admin.users.index') }}" style="display:flex;align-items:center;padding:10px 14px;background:#6B0080;color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:8px">👥 Kelola Pengguna</a>
+            <a href="{{ route('admin.users.index', ['role' => 'panitia', 'status' => 'pending']) }}" style="display:flex;align-items:center;padding:10px 14px;background:#eff6ff;color:#2563eb;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:8px">⏳ Panitia Pending</a>
             <a href="{{ route('admin.settings') }}" style="display:flex;align-items:center;padding:10px 14px;background:#f3f4f6;color:#374151;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600">⚙️ Pengaturan</a>
         </div>
     </div>

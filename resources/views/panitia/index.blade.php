@@ -127,7 +127,7 @@
                 @endif
             </div>
             <p style="font-size:12px;color:#9ca3af;margin-top:3px">
-                📅 {{ isset($event->date) ? \Carbon\Carbon::parse($event->date)->format('d M Y') : '-' }}
+                📅 {{ isset($event$event->event_date) ? \Carbon\Carbon::parse($event$event->event_date)->format('d M Y') : '-' }}
                 &nbsp;·&nbsp;
                 📍 {{ $event->location ?? '-' }}
                 &nbsp;·&nbsp;
