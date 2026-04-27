@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-class AboutUsLinnController extends Controller
+class AboutUsController extends Controller
 {
     // Fungsi untuk menyiapkan data (sesuai instruksi poin 4)
     public function getData()
