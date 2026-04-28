@@ -87,6 +87,7 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
     Route::post('/settings/notifications', function () {
         return back()->with('success', 'Pengaturan notifikasi disimpan.');
     })->name('settings.notifications');
+    Route::get('/panitia/report-peserta', [ParticipantController::class, 'report'])->name('panitia.report');
 
     // Events CRUD
     Route::get('/events', [PanitiaEventController::class, 'index'])->name('events.index');
