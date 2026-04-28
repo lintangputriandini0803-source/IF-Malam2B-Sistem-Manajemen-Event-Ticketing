@@ -19,7 +19,8 @@ class AboutUsController extends Controller
             ['nama' => 'Lintang Putri Andini', 'nim' => '331251032'],
             ['nama' => 'Muhammad Rafli Akbar Setiadi', 'nim' => '3312511031'],
             ['nama' => 'Dinda Amalia Nugroho', 'nim' => '3312511039'],
-        ]
+        ],
+        'lokasi' => 'Politeknik Negeri Batam'
     ];
 
     return $dataAbout;

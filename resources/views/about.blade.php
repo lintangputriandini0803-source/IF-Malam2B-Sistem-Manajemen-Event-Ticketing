@@ -32,7 +32,7 @@
                         <span class="text-purple-700 font-bold text-xl">{{ substr($person['nama'], 0, 1) }}</span>
                     </div>
                     <h4 class="font-bold">{{ $person['nama'] }}</h4>
-                    <p class="text-sm text-gray-500">{{ $person['peran'] }}</p>
+                    <p class="text-sm text-gray-500">{{ $person['nim'] }}</p>
                 </div>
                 @endforeach
             </div>
