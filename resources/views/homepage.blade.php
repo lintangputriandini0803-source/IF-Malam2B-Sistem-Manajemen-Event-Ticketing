@@ -22,7 +22,7 @@
 </div>
 
 <!-- NAVBAR -->
-<nav class="bg-[#8A008A]/90 backdrop-blur-md fixed w-full z-30 top-0 px-4 py-3 shadow-md">
+<nav class="bg-[#6B0080]/90 backdrop-blur-md fixed w-full z-30 top-0 px-4 py-3 shadow-md">
     <div class="flex justify-between items-center max-w-screen-2xl mx-auto">
 
         <a href="{{ route('home') }}" class="flex items-center space-x-2">
@@ -33,7 +33,7 @@
         <div class="hidden md:flex items-center space-x-8 text-white font-medium">
             <a href="{{ route('home') }}" class="hover:text-gray-200">Event</a>
             <a href="#" class="hover:text-gray-200">Tentang Kami</a>
-            <button onclick="openLoginModal()" class="bg-white rounded px-3 text-[#8A008A] hover:bg-gray-100">Login</button>
+            <button onclick="openLoginModal()" class="bg-white rounded px-3 text-[#6B0080] hover:bg-gray-100">Login</button>
         </div>
 </nav>
 
@@ -60,50 +60,87 @@
 
 
 <!-- SEARCH -->
-<form method="GET" action="{{ route('home') }}" class="flex max-w-2xl  mx-auto mb-5 shadow rounded-xl overflow-hidden" >
-    <input type="text" name="search" value="{{ request('search') }}"
-    class="w-full p-2 pl-4 border-none focus:ring-2 focus:ring-purple-500"
-    placeholder="Cari event, lokasi, atau kategori...">
-    <div style="position:relative;border-right:1px solid #e5e7eb;flex-shrink:0;background:white">
-        <select name="category"
-                style="appearance:none;padding:0 32px 0 14px;height:100%;font-size:13px;font-weight:600;color:#374151;border:none;background:transparent;cursor:pointer;min-width:130px;outline:none">
-            <option value=""><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-<path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
-</svg></option>
-            <option value="seminar"   {{ request('category')==='seminar'   ?'selected':'' }}>📚 Seminar</option>
-            <option value="workshop"  {{ request('category')==='workshop'  ?'selected':'' }}>🛠 Workshop</option>
-            <option value="konser"    {{ request('category')==='konser'    ?'selected':'' }}>🎵 Konser</option>
-            <option value="kompetisi" {{ request('category')==='kompetisi' ?'selected':'' }}>🏆 Kompetisi</option>
-            <option value="pameran"   {{ request('category')==='pameran'   ?'selected':'' }}>🎨 Pameran</option>
-            <option value="olahraga"  {{ request('category')==='olahraga'  ?'selected':'' }}>⚽ Olahraga</option>
-            <option value="hiburan"   {{ request('category')==='hiburan'   ?'selected':'' }}>🎭 Hiburan</option>
-        </select>
-        <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:12px;height:12px;color:#9ca3af;pointer-events:none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
+<div class="max-w-2xl mx-auto mb-5 px-2 relative">
+    <form method="GET" action="{{ route('homepage') }}" id="search-form-hp" class="flex shadow rounded-xl overflow-hidden">
+        <input type="hidden" name="category" id="category-input-hp" value="{{ request('category') }}">
+        <input type="text" name="search" value="{{ request('search') }}"
+               class="w-full p-3 pl-4 border-none focus:ring-2 focus:ring-purple-500 text-sm"
+               placeholder="Cari event, lokasi, atau kategori...">
+        <button type="button" id="filter-btn-hp"
+                class="px-4 bg-white border-l border-gray-200 hover:bg-gray-50 transition relative"
+                title="Filter Kategori">
+            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
+            </svg>
+            @if(request('category'))
+            <span class="absolute top-1 right-1 w-2 h-2 bg-[#6B0080] rounded-full"></span>
+            @endif
+        </button>
+        <button type="submit" class="bg-[#6B0080] text-white px-6 hover:bg-purple-700 transition font-semibold text-sm">Search</button>
+    </form>
+
+    {{-- Dropdown Kategori --}}
+    <div id="category-dropdown-hp"
+         class="hidden absolute left-2 right-2 top-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 z-50 p-3">
+        <p class="text-xs font-semibold text-gray-400 uppercase mb-2 px-1">Pilih Kategori</p>
+        <div class="grid grid-cols-2 gap-1">
+            <button type="button" onclick="selectCategoryHp('')"
+                    class="text-left px-3 py-2 rounded-lg text-sm hover:bg-purple-50 hover:text-[#6B0080] transition {{ request('category') == '' ? 'bg-purple-100 text-[#6B0080] font-semibold' : 'text-gray-700' }}">
+                🎉 Semua Kategori
+            </button>
+            @foreach($categories as $cat)
+            <button type="button" onclick="selectCategoryHp('{{ $cat->id }}')"
+                    class="text-left px-3 py-2 rounded-lg text-sm hover:bg-purple-50 hover:text-[#6B0080] transition {{ request('category') == $cat->id ? 'bg-purple-100 text-[#6B0080] font-semibold' : 'text-gray-700' }}">
+                {{ $cat->name }}
+            </button>
+            @endforeach
+        </div>
     </div>
-    <button type="submit" class="bg-[#8A008A] text-white px-6 hover:bg-purple-700 transition">Search</button>
-</form>
+</div>
+
+<script>
+function selectCategoryHp(id) {
+    document.getElementById('category-input-hp').value = id;
+    document.getElementById('category-dropdown-hp').classList.add('hidden');
+    document.getElementById('search-form-hp').submit();
+}
+document.getElementById('filter-btn-hp').addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('category-dropdown-hp').classList.toggle('hidden');
+});
+document.addEventListener('click', function(e) {
+    const dd = document.getElementById('category-dropdown-hp');
+    if (dd && !dd.contains(e.target) && e.target !== document.getElementById('filter-btn-hp')) {
+        dd.classList.add('hidden');
+    }
+});
+</script>
+
 <div class="mx-10 mb-6">
-    <h1 class="text-xl font-bold shadow-md mb-1">Discover Events, Activities and Promotions in PoliBatam</h1>
+    <h1 class="text-xl font-bold mb-1">Discover Events, Activities and Promotions in PoliBatam</h1>
     <p class="max-w-4xl">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quas recusandae quisquam atque distinctio molestiae odio.
          Architecto voluptatem, necessitatibus eligendi obcaecati deserunt culpa, error expedita fugiat veniam aperiam quam nihil nam.</p>
 </div>
 
-
-    @if(request('search'))
-    <p class="text-center text-gray-600 mb-6">
-        Hasil untuk: <strong>"{{ request('search') }}"</strong> ({{ $events->total() }} event)
-        <a href="{{ route('home') }}" class="text-purple-600 ml-2 hover:underline">Reset</a>
-    </p>
+@if(request('search') || request('category'))
+<p class="text-center text-gray-600 mb-5 text-sm">
+    @if(request('search'))Hasil untuk: <strong>"{{ request('search') }}"</strong>@endif
+    @if(request('category'))
+        @php $activeCat = $categories->firstWhere('id', request('category')); @endphp
+        @if($activeCat) — Kategori: <strong>{{ $activeCat->name }}</strong>@endif
     @endif
+    ({{ $events->total() }} event)
+    <a href="{{ route('homepage') }}" class="text-purple-600 ml-2 hover:underline">Reset</a>
+</p>
+@endif
+
 
     <!-- GRID EVENT -->
     <div class="max-w-screen-2xl px-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mx-auto mb-12">
         @forelse ($events as $event)
         <a href="{{ route('event.show', $event->slug) }}" class="block">
-            <div class="w-full bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-2 transition duration-300">
-                <div class="h-48 overflow-hidden">
+            <div class="w-full bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-2 transition duration-300 flex flex-col h-full">
+                <div class="h-48 overflow-hidden flex-shrink-0">
                     @if($event->poster)
                         <img src="{{ asset('poster/' . $event->poster) }}"
                              class="w-full h-full object-cover hover:scale-110 transition duration-300"
@@ -114,17 +151,19 @@
                         </div>
                     @endif
                 </div>
-                <div class="p-5">
-                    <h3 class="font-bold text-[#8A008A] text-lg mb-2 line-clamp-2">{{ $event->title }}</h3>
-                    <p class="text-sm text-gray-500 mb-1">📅 {{ $event->event_date }}</p>
-                    <p class="text-sm text-gray-500 mb-2">📍 {{ $event->location }}</p>
-                    @if($event->ticketTypes->isNotEmpty())
-                        <p class="text-sm font-semibold text-purple-700">
-                            Mulai Rp {{ number_format($event->ticketTypes->min('price'), 0, ',', '.') }}
-                        </p>
-                    @else
-                        <p class="text-sm font-semibold text-green-600">Gratis</p>
-                    @endif
+                <div class="p-5 flex flex-col flex-1">
+                    <h3 class="font-bold text-[#6B0080] text-lg mb-2 line-clamp-2">{{ $event->title }}</h3>
+                    <div class="mt-auto">
+                        <p class="text-sm text-gray-500 mb-1">📅 {{ $event->event_date }}</p>
+                        <p class="text-sm text-gray-500 mb-2">📍 {{ $event->location }}</p>
+                        @if($event->ticketTypes->isNotEmpty())
+                            <p class="text-sm font-semibold text-purple-700">
+                                Mulai Rp {{ number_format($event->ticketTypes->min('price'), 0, ',', '.') }}
+                            </p>
+                        @else
+                            <p class="text-sm font-semibold text-green-600">Gratis</p>
+                        @endif
+                    </div>
                 </div>
             </div>
         </a>
@@ -146,7 +185,7 @@
 </main>
 
 <!-- FOOTER -->
-<footer class="bg-[#8A008A] text-white py-12">
+<footer class="bg-[#6B0080] text-white py-12">
     <div class="max-w-screen-xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
         <div>
             <h4 class="font-bold mb-4 uppercase text-lg">Events</h4>
@@ -212,7 +251,7 @@
                        placeholder="••••••••">
             </div>
             <button type="submit"
-                    class="w-full bg-[#8A008A] hover:bg-purple-700 text-white font-semibold py-2.5 rounded-lg transition text-sm mb-3">
+                    class="w-full bg-[#6B0080] hover:bg-purple-700 text-white font-semibold py-2.5 rounded-lg transition text-sm mb-3">
                 Login
             </button>
         </form>
@@ -336,13 +375,8 @@ document.getElementById('modal-overlay').addEventListener('click', closeLoginMod
 
     // Auto-play tiap 4 detik
     autoSlide = setInterval(nextSlide, 4000);
-
-    document.querySelectorAll('*').forEach(el => {
-    el.style.outline = '1px solid red';
-});
 </script>
 
 
 </body>
 </html>
-
