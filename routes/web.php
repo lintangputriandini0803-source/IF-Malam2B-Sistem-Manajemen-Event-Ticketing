@@ -47,6 +47,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
     Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
 
     // Event management
     Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
