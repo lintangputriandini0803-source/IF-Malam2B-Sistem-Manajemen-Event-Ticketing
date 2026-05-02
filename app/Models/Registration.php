@@ -3,17 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Registration extends Model
 {
     protected $fillable = [
         'ticket_type_id',
         'reg_number',
+        'order_ref',
         'name',
+        'nim',
         'email',
         'phone',
         'quantity',
         'total_price',
+        'payment_method',
+        'virtual_account',
         'status',
     ];
 
@@ -26,6 +31,9 @@ class Registration extends Model
         parent::boot();
         static::creating(function ($registration) {
             $registration->reg_number = static::generateRegNumber();
+            if (empty($registration->order_ref)) {
+                $registration->order_ref = strtoupper(Str::random(2)) . '-' . rand(10000, 99999);
+            }
         });
     }
 
@@ -43,11 +51,6 @@ class Registration extends Model
         $year  = now()->format('Y');
         $count = static::whereYear('created_at', $year)->count() + 1;
         return sprintf('EVT-%s-%06d', $year, $count);
-    }
-
-    public function getTotalPrice(): float
-    {
-        return (float) ($this->ticketType->price * $this->quantity);
     }
 
     public function confirm(): void
