@@ -78,16 +78,11 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
     Route::get('/settings', function () {
         return view('panitia.settings');
     })->name('settings');
-    Route::post('/settings/update', function () {
-        return back()->with('success', 'Profil berhasil diperbarui.');
-    })->name('settings.update');
-    Route::post('/settings/password', function () {
-        return back()->with('success', 'Password berhasil diubah.');
-    })->name('settings.password');
-    Route::post('/settings/notifications', function () {
-        return back()->with('success', 'Pengaturan notifikasi disimpan.');
-    })->name('settings.notifications');
-    Route::get('/panitia/report-peserta', [ParticipantController::class, 'report'])->name('panitia.report');
+
+    // Report Peserta 
+    Route::get('/report-peserta', [ParticipantController::class, 'report'])->name('report_peserta');
+    
+    Route::get('/export-excel', [ParticipantController::class, 'exportExcel'])->name('export-excel');
 
     // Events CRUD
     Route::get('/events', [PanitiaEventController::class, 'index'])->name('events.index');

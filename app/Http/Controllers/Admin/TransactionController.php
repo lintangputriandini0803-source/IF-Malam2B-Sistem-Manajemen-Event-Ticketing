@@ -4,25 +4,25 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Registration;
 
 class TransactionController extends Controller
 {
     public function index(Request $request)
-    {
-        // Coba load Registration model jika ada
-        $transactions = collect();
-        try {
-            $query = \App\Models\Registration::with(['user', 'event']);
-            if ($request->filled('search')) {
-                $q = $request->search;
-                $query->whereHas('user', fn($q2) => $q2->where('name', 'like', "%{$q}%")
-                    ->orWhere('email', 'like', "%{$q}%"));
-            }
-            $transactions = $query->latest()->paginate(15);
-        } catch (\Exception $e) {
-            $transactions = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15);
-        }
-
-        return view('admin.transactions.index', compact('transactions'));
+{
+    $peserta = \App\Models\Registration::with(['details.ticketType', 'event'])->latest()->get();
+    
+    if ($request->filled('search')) {
+        $q = $request->search;
+        $query->where(function($query) use ($q) {
+            $query->where('name', 'like', "%{$q}%")
+                  ->orWhere('email', 'like', "%{$q}%")
+                  ->orWhere('reg_number', 'like', "%{$q}%");
+        });
     }
+
+    $peserta = $query->latest()->get(); 
+
+    return view('panitia.report_peserta', compact('peserta'));
+  }
 }
