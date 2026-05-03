@@ -9,7 +9,7 @@
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div style="background:white;border-radius:12px;padding:20px;display:flex;align-items:flex-start;justify-content:space-between">
         <div>
-            <p style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em">Total Pengguna</p>
+            <p style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em">Total Customer</p>
             <p style="font-size:26px;font-weight:800;color:#111;margin-top:4px">{{ $totalUsers ?? 0 }}</p>
             <p style="font-size:12px;color:#22c55e;margin-top:2px;font-weight:600">↑ +12 bulan ini</p>
         </div>
@@ -111,7 +111,7 @@
     <div style="display:flex;flex-direction:column;gap:14px">
         <div style="background:white;border-radius:14px;padding:20px">
             <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:14px">Role Pengguna</h2>
-            @foreach([['Admin',$adminCount??0,'#6B0080','#f5eeff'],['Panitia',$panitiaCount??0,'#2563eb','#eff6ff'],['User',$userCount??0,'#16a34a','#f0fdf4']] as [$label,$count,$color,$bg])
+            @foreach([['Admin',$adminCount??0,'#6B0080','#f5eeff'],['Panitia',$panitiaCount??0,'#2563eb','#eff6ff'],['Customer',$userCount??0,'#16a34a','#f0fdf4']] as [$label,$count,$color,$bg])
             <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f9fafb">
                 <div style="display:flex;align-items:center;gap:8px">
                     <div style="width:8px;height:8px;border-radius:50%;background:{{ $color }}"></div>
