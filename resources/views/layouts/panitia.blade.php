@@ -252,6 +252,14 @@
             Event
         </a>
 
+        <a href="{{ route('panitia.report_peserta') }}" 
+            class="nav-item {{ request()->routeIs('panitia.report_peserta') ? 'active' : '' }}">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:20px; height:20px">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Report Peserta
+        </a>
+
         <a href="#" class="nav-item">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -260,15 +268,6 @@
             </svg>
             Settings
         </a>
-
-        <a href="{{ route('home') }}" class="nav-item">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
-            </svg>
-            Lihat Website
-        </a>
-    </nav>
 
     <!-- User footer -->
     <div class="sidebar-footer">

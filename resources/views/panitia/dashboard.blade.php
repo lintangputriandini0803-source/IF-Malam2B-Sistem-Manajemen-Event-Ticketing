@@ -6,7 +6,6 @@
 
 {{-- STAT CARDS --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-
     <div class="stat-card">
         <div>
             <p style="font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Total Event</p>
@@ -15,8 +14,7 @@
         </div>
         <div class="stat-icon" style="background:#f5eeff">
             <svg style="width:20px;height:20px;color:#6B0080" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
         </div>
     </div>
@@ -29,8 +27,7 @@
         </div>
         <div class="stat-icon" style="background:#f0fdf4">
             <svg style="width:20px;height:20px;color:#16a34a" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
             </svg>
         </div>
     </div>
@@ -43,8 +40,7 @@
         </div>
         <div class="stat-icon" style="background:#fff7ed">
             <svg style="width:20px;height:20px;color:#ea580c" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
         </div>
     </div>
@@ -57,8 +53,7 @@
         </div>
         <div class="stat-icon" style="background:#eff6ff">
             <svg style="width:20px;height:20px;color:#2563eb" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
         </div>
     </div>
@@ -107,6 +102,7 @@
         {{-- QUICK ACTION --}}
         <div style="background:white;border-radius:14px;padding:20px">
             <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:14px">Quick Action</h2>
+            
             <a href="{{ route('panitia.events.create') }}"
                style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:#6B0080;color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:8px">
                 <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,12 +110,22 @@
                 </svg>
                 Buat Event Baru
             </a>
+
             <a href="{{ route('panitia.events.index') }}"
-               style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:#f5eeff;color:#6B0080;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600">
+               style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:#f5eeff;color:#6B0080;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:8px">
                 <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                 </svg>
                 Kelola Event
+            </a>
+
+            {{-- TOMBOL LAPORAN BARU --}}
+            <a href="{{ route('panitia.report_peserta') }}" 
+               style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:#fef3c7;color:#92400e;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600">
+                <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Lihat Laporan Peserta
             </a>
         </div>
 

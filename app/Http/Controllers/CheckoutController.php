@@ -6,7 +6,6 @@ use App\Models\Event;
 use App\Models\Registration;
 use App\Models\TicketType;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -52,7 +51,26 @@ class CheckoutController extends Controller
         if (empty($selectedTickets)) {
             return back()->withErrors(['error' => 'Pilih minimal 1 tiket.']);
         }
+        $registration = Registration::create([
+            'reg_number'  => Registration::generateRegNumber(),
+            'name'        => $request->name, // Pastikan input ini ada di form sebelumnya
+            'email'       => $request->email,
+            'phone'       => $request->phone,
+            'total_price' => $totalPrice,
+            'status'      => 'pending',
+            'payment_method' => 'Transfer Bank',
+        ]);
 
+        foreach ($selectedTickets as $item) {
+            RegistrationDetail::create([
+                'registration_id' => $registration->id,
+                'ticket_type_id'  => $item['ticket']->id,
+                'quantity'        => $item['qty'],
+                'price'           => $item['ticket']->price,
+            ]);
+        }
+
+        return view('checkout', compact('event', 'selectedTickets', 'totalPrice', 'registration'));
         return view('checkout', compact('event', 'selectedTickets', 'totalPrice'));
     }
 
