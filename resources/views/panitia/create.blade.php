@@ -122,34 +122,163 @@
             </div>
         </div>
 
-        {{-- SECTION 3: TIKET --}}
-        <div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
-            <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
-                🎫 Tiket
-            </h2>
+       {{-- SECTION 3: TIKET --}}
+<div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
+    <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
+        🎫 Tiket
+    </h2>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div id="tiket-list">
+        @php
+            $tikets = old('tikets', $event->tikets ?? [
+                ['nama' => '', 'price' => '', 'quota' => '']
+            ]);
+            if (is_string($tikets)) $tikets = json_decode($tikets, true) ?? [];
+        @endphp
+
+        @foreach($tikets as $i => $tiket)
+        <div class="tiket-item" style="border:1.5px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;position:relative">
+
+            {{-- Tombol hapus --}}
+            @if($loop->index > 0)
+            <button type="button" onclick="hapusTiket(this)"
+                    style="position:absolute;top:12px;right:12px;background:#fee2e2;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#ef4444;cursor:pointer;font-weight:600">
+                ✕ Hapus
+            </button>
+            @endif
+
+            <div style="font-size:12px;font-weight:700;color:#6B0080;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">
+                Tiket {{ $loop->iteration }}
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
-                        Harga Tiket (Rp)
+                        Nama Tiket
                     </label>
-                    <input type="number" name="price" value="{{ old('price', $event->price ?? 0) }}"
-                           min="0" placeholder="0 = Gratis"
+                    <input type="text" name="tikets[{{ $i }}][nama]"
+                           value="{{ $tiket['nama'] ?? '' }}"
+                           placeholder="cth: Regular, VIP..."
                            style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
                            onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
-                    <p style="font-size:11px;color:#9ca3af;margin-top:4px">Isi 0 untuk event gratis</p>
                 </div>
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
-                        Kuota Peserta
+                        Harga (Rp)
                     </label>
-                    <input type="number" name="quota" value="{{ old('quota', $event->quota ?? '') }}"
-                           min="1" placeholder="Jumlah maksimum peserta"
+                    <input type="number" name="tikets[{{ $i }}][price]"
+                           value="{{ $tiket['price'] ?? 0 }}"
+                           min="0" placeholder="0 = Gratis"
+                           style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                           onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+                </div>
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
+                        Kuota
+                    </label>
+                    <input type="number" name="tikets[{{ $i }}][quota]"
+                           value="{{ $tiket['quota'] ?? '' }}"
+                           min="1" placeholder="Jumlah peserta"
                            style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
                            onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
                 </div>
             </div>
         </div>
+        @endforeach
+    </div>
+
+    {{-- Tombol Tambah Tiket --}}
+    <button type="button" id="btn-tambah-tiket" onclick="tambahTiket()"
+            style="display:flex;align-items:center;gap:8px;padding:10px 18px;border:1.5px dashed #6B0080;border-radius:10px;background:transparent;color:#6B0080;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px">
+        + Tambah Jenis Tiket
+    </button>
+    <p id="tiket-max-msg" style="display:none;font-size:11px;color:#9ca3af;margin-top:6px">
+        Maksimal 3 jenis tiket.
+    </p>
+</div>
+
+<script>
+const MAX_TIKET = 3;
+
+function getTiketCount() {
+    return document.querySelectorAll('.tiket-item').length;
+}
+
+function updateTambahBtn() {
+    const btn = document.getElementById('btn-tambah-tiket');
+    const msg = document.getElementById('tiket-max-msg');
+    if (getTiketCount() >= MAX_TIKET) {
+        btn.style.display = 'none';
+        msg.style.display = 'block';
+    } else {
+        btn.style.display = 'flex';
+        msg.style.display = 'none';
+    }
+}
+
+function tambahTiket() {
+    if (getTiketCount() >= MAX_TIKET) return;
+
+    const index = getTiketCount();
+    const wrapper = document.getElementById('tiket-list');
+
+    const div = document.createElement('div');
+    div.className = 'tiket-item';
+    div.style.cssText = 'border:1.5px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;position:relative';
+
+    div.innerHTML = `
+        <button type="button" onclick="hapusTiket(this)"
+                style="position:absolute;top:12px;right:12px;background:#fee2e2;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#ef4444;cursor:pointer;font-weight:600">
+            ✕ Hapus
+        </button>
+        <div style="font-size:12px;font-weight:700;color:#6B0080;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">
+            Tiket ${index + 1}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Nama Tiket</label>
+                <input type="text" name="tikets[${index}][nama]" placeholder="cth: Regular, VIP..."
+                       style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                       onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Harga (Rp)</label>
+                <input type="number" name="tikets[${index}][price]" value="0" min="0" placeholder="0 = Gratis"
+                       style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                       onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Kuota</label>
+                <input type="number" name="tikets[${index}][quota]" min="1" placeholder="Jumlah peserta"
+                       style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                       onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+        </div>
+    `;
+
+    wrapper.appendChild(div);
+    updateTambahBtn();
+}
+
+function hapusTiket(btn) {
+    btn.closest('.tiket-item').remove();
+    reindexTikets();
+    updateTambahBtn();
+}
+
+function reindexTikets() {
+    document.querySelectorAll('.tiket-item').forEach((item, i) => {
+        item.querySelectorAll('input').forEach(input => {
+            input.name = input.name.replace(/tikets\[\d+\]/, `tikets[${i}]`);
+        });
+        const label = item.querySelector('div[style*="color:#6B0080"]');
+        if (label) label.textContent = `Tiket ${i + 1}`;
+    });
+}
+
+// Cek saat halaman load (untuk edit mode)
+updateTambahBtn();
+</script>
 
         {{-- SECTION 4: POSTER --}}
         <div style="background:white;border-radius:14px;padding:24px;margin-bottom:20px">

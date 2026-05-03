@@ -53,7 +53,7 @@
                 </td>
                 <td style="padding:14px 20px;font-size:13px;color:#374151">{{ $event->user->name ?? '-' }}</td>
                 <td style="padding:14px 20px;font-size:12px;color:#9ca3af">
-                    {{ $event->event_date ? \Carbon\Carbon::parse($event->event_date)->format('d M Y') : '-' }}
+                    {{ $event->event_date ?? '-' }}
                 </td>
                 <td style="padding:14px 20px">
                     <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;

@@ -21,8 +21,21 @@ use App\Http\Controllers\AboutUsController;
 Route::get('/', [EventController::class, 'index'])->name('home');
 Route::get('/event', [EventController::class, 'event'])->name('homepage');
 Route::get('/event/{event:slug}', [EventController::class, 'show'])->name('event.show');
-Route::post('/event/{event:slug}/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/about', [AboutUsController::class, 'tampilkan'])->name('about');
+
+// ─── Checkout (multi-step) ────────────────────────────────────────────────────
+
+// Step 1: Terima pilihan tiket → tampil form checkout
+Route::post('/event/{event:slug}/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+// Step 2: Proses form checkout → simpan ke DB → redirect ke payment
+Route::post('/event/{event:slug}/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+
+// Step 3: Halaman tunggu pembayaran (VA)
+Route::get('/event/{event:slug}/payment', [CheckoutController::class, 'payment'])->name('checkout.payment');
+
+// Step 4: Ringkasan tiket
+Route::get('/event/{event:slug}/summary', [CheckoutController::class, 'summary'])->name('checkout.summary');
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
@@ -47,6 +60,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
     Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
 
     // Event management
     Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
@@ -57,7 +71,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Transactions
     Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
 
-    // Settings — pakai controller agar $settings tersedia di view
+    // Settings
     Route::get('/settings', [AdminSettings::class, 'index'])->name('settings');
     Route::put('/settings/update', [AdminSettings::class, 'update'])->name('settings.update');
     Route::put('/settings/profile', [AdminSettings::class, 'profile'])->name('settings.profile');
@@ -70,9 +84,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 // ─── Panitia ──────────────────────────────────────────────────────────────────
 
 Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('panitia.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Panitia\DashboardController::class, 'index'])->name('dashboard');
 
     // Settings
     Route::get('/settings', function () {
@@ -83,6 +95,15 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
     Route::get('/report-peserta', [ParticipantController::class, 'report'])->name('report_peserta');
     
     Route::get('/export-excel', [ParticipantController::class, 'exportExcel'])->name('export-excel');
+    Route::post('/settings/update', function () {
+        return back()->with('success', 'Profil berhasil diperbarui.');
+    })->name('settings.update');
+    Route::post('/settings/password', function () {
+        return back()->with('success', 'Password berhasil diubah.');
+    })->name('settings.password');
+    Route::post('/settings/notifications', function () {
+        return back()->with('success', 'Pengaturan notifikasi disimpan.');
+    })->name('settings.notifications');
 
     // Events CRUD
     Route::get('/events', [PanitiaEventController::class, 'index'])->name('events.index');

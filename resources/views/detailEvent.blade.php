@@ -13,7 +13,7 @@
 <body class="relative min-h-screen">
 
 <!-- NAVBAR -->
-<nav class="bg-[#8A008A]/90 backdrop-blur-md fixed w-full z-30 top-0 px-4 py-2 shadow-md">
+<nav class="bg-[#6B0080]/90 backdrop-blur-md fixed w-full z-30 top-0 px-4 py-2 shadow-md">
     <div class="flex justify-between items-center max-w-screen-2xl mx-auto">
         <a href="{{ route('home') }}">
             <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 10">
@@ -64,35 +64,74 @@
             <div class="space-y-4">
 
                 @forelse($event->ticketTypes as $ticket)
-                <div class="bg-white/80 backdrop-blur rounded-xl p-4 shadow">
-                    <p class="font-semibold text-gray-800">{{ $ticket->name }}</p>
-                    <p class="text-right font-bold text-[#8A008A] text-lg">
-                        @if($ticket->price > 0)
-                            Rp {{ number_format($ticket->price, 0, ',', '.') }}
-                        @else
-                            Gratis
-                        @endif
-                    </p>
-                    <p class="text-xs text-gray-400 mb-3">Sisa: {{ $ticket->getRemainingQuota() }} tiket</p>
+                @php $ticketStatus = $ticket->getStatus(); @endphp
+                <div class="bg-white/80 backdrop-blur rounded-xl p-4 shadow {{ $ticketStatus !== 'available' ? 'opacity-70' : '' }}">
 
-                    <!-- TOMBOL +/- -->
+                    {{-- Header: nama + harga --}}
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="font-semibold text-gray-800 text-sm leading-tight">{{ $ticket->name }}</p>
+                        <p class="font-bold text-[#6B0080] text-base ml-2 whitespace-nowrap">
+                            @if($ticket->price > 0)
+                                Rp {{ number_format($ticket->price, 0, ',', '.') }}
+                            @else
+                                Gratis
+                            @endif
+                        </p>
+                    </div>
+
+                    {{-- Deskripsi/benefit tiket --}}
+                    @if($ticket->description)
+                    <ul class="text-xs text-gray-500 mb-2 space-y-0.5">
+                        @foreach(explode("\n", $ticket->description) as $line)
+                            @if(trim($line))
+                            <li class="flex items-start gap-1">
+                                <span class="text-[#6B0080] mt-0.5">•</span>
+                                <span>{{ trim($line) }}</span>
+                            </li>
+                            @endif
+                        @endforeach
+                    </ul>
+                    @endif
+
+                    {{-- Info kuota & waktu --}}
+                    <div class="flex items-center justify-between mb-3">
+                        @if($ticketStatus === 'available')
+                            <span class="text-xs text-gray-400">Sisa: {{ $ticket->getRemainingQuota() }} tiket</span>
+                            @if($ticket->closes_at)
+                            <span class="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-medium">
+                                ⏱ Tutup dalam {{ $ticket->getClosesAtHuman() }}
+                            </span>
+                            @endif
+                        @elseif($ticketStatus === 'sold_out')
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">Habis Terjual</span>
+                        @elseif($ticketStatus === 'time_closed')
+                            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">Waktu Pembelian Habis</span>
+                        @else
+                            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">Tidak Tersedia</span>
+                        @endif
+                    </div>
+
+                    {{-- Tombol +/- hanya jika tersedia --}}
+                    @if($ticketStatus === 'available')
                     <div class="flex items-center justify-between">
                         <button type="button"
                                 onclick="changeQty({{ $ticket->id }}, -1, {{ $ticket->getRemainingQuota() }})"
-                                class="w-8 h-8 rounded-full border-2 border-[#8A008A] text-[#8A008A] font-bold text-lg flex items-center justify-center hover:bg-[#8A008A] hover:text-white transition">
+                                class="w-8 h-8 rounded-full border-2 border-[#6B0080] text-[#6B0080] font-bold text-lg flex items-center justify-center hover:bg-[#6B0080] hover:text-white transition">
                             −
                         </button>
-
                         <span id="qty-display-{{ $ticket->id }}" class="text-lg font-bold text-gray-800 w-8 text-center">0</span>
-
                         <input type="hidden" name="tickets[{{ $ticket->id }}]" id="qty-input-{{ $ticket->id }}" value="0">
-
                         <button type="button"
                                 onclick="changeQty({{ $ticket->id }}, 1, {{ $ticket->getRemainingQuota() }})"
-                                class="w-8 h-8 rounded-full border-2 border-[#8A008A] text-[#8A008A] font-bold text-lg flex items-center justify-center hover:bg-[#8A008A] hover:text-white transition">
+                                class="w-8 h-8 rounded-full border-2 border-[#6B0080] text-[#6B0080] font-bold text-lg flex items-center justify-center hover:bg-[#6B0080] hover:text-white transition">
                             +
                         </button>
                     </div>
+                    @else
+                    <div class="text-center py-1">
+                        <span class="text-xs text-gray-400 italic">Tiket tidak tersedia</span>
+                    </div>
+                    @endif
                 </div>
                 @empty
                 <div class="bg-white/80 backdrop-blur rounded-xl p-4 shadow text-center text-gray-500">
@@ -105,12 +144,12 @@
                 <div class="bg-white/80 backdrop-blur rounded-xl p-4 shadow">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600">Total</span>
-                        <span id="total-display" class="font-bold text-[#8A008A]">Rp 0</span>
+                        <span id="total-display" class="font-bold text-[#6B0080]">Rp 0</span>
                     </div>
                 </div>
 
                 <button type="submit" id="btn-beli"
-                        class="w-full bg-[#8A008A] hover:bg-purple-700 text-white py-3 rounded-xl transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="w-full bg-[#6B0080] hover:bg-purple-700 text-white py-3 rounded-xl transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled>
                     Beli Sekarang
                 </button>
@@ -150,7 +189,7 @@
 </div>
 
 <!-- FOOTER -->
-<footer class="bg-[#8A008A] text-white py-3 mt-10">
+<footer class="bg-[#6B0080] text-white py-3 mt-10">
     <div class="text-center text-xs opacity-60">
         &copy; 2026 SIMETIX - All Rights Reserved.
     </div>

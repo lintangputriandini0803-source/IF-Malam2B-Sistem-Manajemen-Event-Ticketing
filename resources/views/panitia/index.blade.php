@@ -122,14 +122,16 @@
                 <p style="font-size:14px;font-weight:700;color:#111">{{ $event->title }}</p>
                 @if($event->category)
                 <span style="font-size:10px;padding:2px 8px;background:#f0f0f5;color:#6b7280;border-radius:4px;font-weight:600">
-                    {{ $event->category }}
+                    {{ $event->category->name ?? $event->category }}
                 </span>
                 @endif
             </div>
             <p style="font-size:12px;color:#9ca3af;margin-top:3px">
-                 {{ $event->event_date ?? '-' }}
-                 &nbsp;&nbsp;
-                 {{ $event->location ?? '-' }}
+                <p style="font-size:12px;color:#9ca3af;margin-top:3px">
+    {{ isset($event->event_date) ? \Carbon\Carbon::parse($event->event_date)->format('d M Y') : '-' }}
+    &nbsp;&nbsp;
+    {{ $event->location ?? '-' }}
+</p>
                 &nbsp;·&nbsp;
                  {{ $event->tickets_sold ?? 0 }}/{{ $event->quota ?? 0 }} tiket
             </p>

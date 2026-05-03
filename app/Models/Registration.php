@@ -3,20 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo; 
-use Illuminate\Database\Eloquent\Relations\HasMany;   
-
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 class Registration extends Model
 {
     protected $fillable = [
         'event_id', 
         'ticket_type_id',
         'reg_number',
+        'order_ref',
         'name',
+        'nim',
         'email',
         'phone',
         'quantity',
         'total_price',
+        'payment_method',
+        'virtual_account',
         'status',
     ];
 
@@ -29,6 +33,9 @@ class Registration extends Model
         parent::boot();
         static::creating(function ($registration) {
             $registration->reg_number = static::generateRegNumber();
+            if (empty($registration->order_ref)) {
+                $registration->order_ref = strtoupper(Str::random(2)) . '-' . rand(10000, 99999);
+            }
         });
     }
 
@@ -58,10 +65,9 @@ class Registration extends Model
 
     public function getTotalPrice(): float
     {
-        return (float) $this->details->sum(function($detail) {
-            return $detail->price * $detail->quantity;
-        });
+        return (float) ($this->ticketType->price * $this->quantity);
     }
+
     public function confirm(): void
     {
         $this->update(['status' => 'confirmed']);
