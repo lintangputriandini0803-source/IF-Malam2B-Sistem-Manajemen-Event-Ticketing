@@ -128,12 +128,11 @@
             </div>
             <p style="font-size:12px;color:#9ca3af;margin-top:3px">
                 <p style="font-size:12px;color:#9ca3af;margin-top:3px">
-    {{ isset($event->event_date) ? \Carbon\Carbon::parse($event->event_date)->format('d M Y') : '-' }}
-    &nbsp;&nbsp;
-    {{ $event->location ?? '-' }}
-</p>
+            {{ $event->event_date ?? '-' }}
+                &nbsp;&nbsp;
+                {{ $event->location ?? '-' }}
                 &nbsp;·&nbsp;
-                 {{ $event->tickets_sold ?? 0 }}/{{ $event->quota ?? 0 }} tiket
+                {{ $event->tickets_sold ?? 0 }}/{{ $event->quota ?? 0 }} tiket
             </p>
         </div>
 
