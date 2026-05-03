@@ -70,6 +70,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Transactions
     Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/export', [AdminTransactionController::class, 'index'])->name('transactions.export');
 
     // Settings
     Route::get('/settings', [AdminSettings::class, 'index'])->name('settings');
