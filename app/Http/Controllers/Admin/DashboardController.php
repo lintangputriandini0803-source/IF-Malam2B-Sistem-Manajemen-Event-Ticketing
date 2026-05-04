@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $totalUsers      = User::count();
         $adminCount      = User::where('role', 'admin')->count();
         $panitiaCount    = User::where('role', 'panitia')->count();
-        $userCount       = User::where('role', 'user')->count();
+        $userCount       = User::whereNotIn('role', ['admin', 'panitia'])->count();
         $recentUsers     = User::latest()->limit(5)->get();
 
         // Revenue & tickets — pakai Registration jika ada, fallback 0

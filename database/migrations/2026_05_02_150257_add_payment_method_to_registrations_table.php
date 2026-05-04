@@ -6,23 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('registrations', function (Blueprint $table) {
-            $table->string('payment_method')->nullable()->after('status');
-        });
+        // Kolom payment_method sudah ditambahkan di migration sebelumnya
+        // (2026_04_29_193307_add_payment_columns_to_registrations.php)
+        // Migration ini di-skip agar tidak duplikat
+        if (! Schema::hasColumn('registrations', 'payment_method')) {
+            Schema::table('registrations', function (Blueprint $table) {
+                $table->string('payment_method')->nullable()->after('status');
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('registrations', function (Blueprint $table) {
-            $table->dropColumn('payment_method');
-        });
+        // Tidak drop karena kolom ini dipakai migration lain
     }
 };
