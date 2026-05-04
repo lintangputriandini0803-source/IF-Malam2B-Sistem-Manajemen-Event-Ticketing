@@ -128,12 +128,18 @@
             </div>
             <p style="font-size:12px;color:#9ca3af;margin-top:3px">
                 <p style="font-size:12px;color:#9ca3af;margin-top:3px">
+<<<<<<< HEAD
         {{ $event->event_date ?? '-' }}
     &nbsp;&nbsp;
     {{ $event->location ?? '-' }}
 </p>
+=======
+            {{ $event->event_date ?? '-' }}
+                &nbsp;&nbsp;
+                {{ $event->location ?? '-' }}
+>>>>>>> d973dae7c960f2758ba29fb556527a5b950ea587
                 &nbsp;·&nbsp;
-                 {{ $event->tickets_sold ?? 0 }}/{{ $event->quota ?? 0 }} tiket
+                {{ $event->tickets_sold ?? 0 }}/{{ $event->quota ?? 0 }} tiket
             </p>
         </div>
 

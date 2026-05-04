@@ -15,19 +15,28 @@ class DashboardController extends Controller
         $publishedEvents = Event::where('status', 'published')->count();
         $pendingPanitia  = User::where('role', 'panitia')->where('status', 'pending')->count();
         $totalPanitia    = User::where('role', 'panitia')->count();
-        $totalUsers      = User::count();
         $adminCount      = User::where('role', 'admin')->count();
         $panitiaCount    = User::where('role', 'panitia')->count();
+<<<<<<< HEAD
         $userCount       = User::whereNotIn('role', ['admin', 'panitia'])->count();
+=======
+>>>>>>> d973dae7c960f2758ba29fb556527a5b950ea587
         $recentUsers     = User::latest()->limit(5)->get();
 
-        // Revenue & tickets — pakai Registration jika ada, fallback 0
         $totalTickets = 0;
         $totalRevenue = 0;
+        $userCount    = 0; // untuk Role Pengguna (kanan)
+        $totalUsers   = 0; // untuk Stat Card "Total Customer"
+
         if (class_exists(\App\Models\Registration::class)) {
             try {
-                $totalTickets = \App\Models\Registration::count();
-                $totalRevenue = \App\Models\Registration::sum('total_price') ?? 0;
+                $totalTickets = Registration::count();
+                $totalRevenue = Registration::sum('total_price') ?? 0;
+
+                // Jumlah unik pembeli tiket — dipakai di dua tempat
+                $buyerCount  = Registration::distinct('user_id')->count('user_id');
+                $userCount   = $buyerCount;
+                $totalUsers  = $buyerCount;
             } catch (\Exception $e) {
                 // tabel belum ada, biarkan 0
             }
