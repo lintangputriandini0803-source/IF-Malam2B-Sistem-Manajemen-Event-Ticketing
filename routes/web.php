@@ -70,7 +70,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Transactions
     Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
+<<<<<<< HEAD
+    Route::get('/transactions/export', [AdminTransactionController::class, 'export'])->name('transactions.export');
+    Route::get('/transactions/{transaction}', [AdminTransactionController::class, 'show'])->name('transactions.show');
+    Route::patch('/transactions/{transaction}/verify', [AdminTransactionController::class, 'verify'])->name('transactions.verify');
+=======
     Route::get('/transactions/export', [AdminTransactionController::class, 'index'])->name('transactions.export');
+>>>>>>> d973dae7c960f2758ba29fb556527a5b950ea587
 
     // Settings
     Route::get('/settings', [AdminSettings::class, 'index'])->name('settings');

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Registration;
+use App\Models\RegistrationDetail;
 use App\Models\TicketType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -26,7 +28,6 @@ class CheckoutController extends Controller
             $ticket = TicketType::find($ticketId);
             if (! $ticket || $ticket->event_id !== $event->id) continue;
 
-            // Validasi ketersediaan (kuota + waktu)
             $status = $ticket->getStatus();
             if ($status === 'sold_out') {
                 return back()->withErrors(['error' => "Tiket {$ticket->name} sudah habis."]);
@@ -41,36 +42,14 @@ class CheckoutController extends Controller
                 return back()->withErrors(['error' => "Kuota tiket {$ticket->name} tidak mencukupi (sisa: {$ticket->getRemainingQuota()})."]);
             }
 
-            $selectedTickets[] = [
-                'ticket' => $ticket,
-                'qty'    => $qty,
-            ];
+            $selectedTickets[] = ['ticket' => $ticket, 'qty' => $qty];
             $totalPrice += $ticket->price * $qty;
         }
 
         if (empty($selectedTickets)) {
             return back()->withErrors(['error' => 'Pilih minimal 1 tiket.']);
         }
-        $registration = Registration::create([
-            'reg_number'  => Registration::generateRegNumber(),
-            'name'        => $request->name, // Pastikan input ini ada di form sebelumnya
-            'email'       => $request->email,
-            'phone'       => $request->phone,
-            'total_price' => $totalPrice,
-            'status'      => 'pending',
-            'payment_method' => 'Transfer Bank',
-        ]);
 
-        foreach ($selectedTickets as $item) {
-            RegistrationDetail::create([
-                'registration_id' => $registration->id,
-                'ticket_type_id'  => $item['ticket']->id,
-                'quantity'        => $item['qty'],
-                'price'           => $item['ticket']->price,
-            ]);
-        }
-
-        return view('checkout', compact('event', 'selectedTickets', 'totalPrice', 'registration'));
         return view('checkout', compact('event', 'selectedTickets', 'totalPrice'));
     }
 
@@ -80,26 +59,24 @@ class CheckoutController extends Controller
     public function process(Request $request, Event $event)
     {
         $request->validate([
-            'buyer_name'       => 'required|string|max:255',
-            'buyer_nim'        => 'required|string|max:50',
-            'buyer_email'      => 'required|email',
-            'buyer_phone'      => 'required|string|max:20',
-            'payment_method'   => 'required|string',
-            'tickets'          => 'required|array',
-            'tickets.*.id'     => 'required|exists:ticket_types,id',
-            'tickets.*.qty'    => 'required|integer|min:1',
+            'buyer_name'     => 'required|string|max:255',
+            'buyer_nim'      => 'required|string|max:50',
+            'buyer_email'    => 'required|email',
+            'buyer_phone'    => 'required|string|max:20',
+            'payment_method' => 'required|string',
+            'tickets'        => 'required|array',
+            'tickets.*.id'   => 'required|exists:ticket_types,id',
+            'tickets.*.qty'  => 'required|integer|min:1',
         ]);
 
         $orderRef   = strtoupper(Str::random(2)) . '-' . rand(10000, 99999);
         $vaNumber   = $this->generateVA($request->payment_method);
         $totalPrice = 0;
-        $registrations = [];
 
         foreach ($request->tickets as $item) {
             $ticket = TicketType::findOrFail($item['id']);
             $qty    = (int) $item['qty'];
 
-            // Validasi ulang sebelum simpan (double-check)
             if (! $ticket->isAvailable($qty)) {
                 return back()->withErrors(['error' => "Tiket {$ticket->name} tidak tersedia lagi saat proses."]);
             }
@@ -107,13 +84,12 @@ class CheckoutController extends Controller
             $subtotal    = $ticket->price * $qty;
             $totalPrice += $subtotal;
 
-            // Kurangi kuota atomik
             if (! $ticket->decreaseQuota($qty)) {
                 return back()->withErrors(['error' => "Gagal memproses tiket {$ticket->name}, coba lagi."]);
             }
 
-            // Simpan satu registrasi per jenis tiket
-            $reg = Registration::create([
+            Registration::create([
+                'event_id'        => $event->id,
                 'ticket_type_id'  => $ticket->id,
                 'order_ref'       => $orderRef,
                 'name'            => $request->buyer_name,
@@ -126,11 +102,8 @@ class CheckoutController extends Controller
                 'virtual_account' => $vaNumber,
                 'status'          => 'pending',
             ]);
-
-            $registrations[] = $reg;
         }
 
-        // Simpan data ringkasan di session untuk halaman konfirmasi
         session([
             'order_ref'      => $orderRef,
             'va_number'      => $vaNumber,
@@ -160,7 +133,6 @@ class CheckoutController extends Controller
         $totalPrice    = session('total_price');
         $paymentMethod = session('payment_method');
 
-        // Ambil semua registrasi dengan order_ref ini
         $registrations = Registration::where('order_ref', $orderRef)
             ->with('ticketType')
             ->get();
