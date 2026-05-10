@@ -17,10 +17,6 @@ class DashboardController extends Controller
         $totalPanitia    = User::where('role', 'panitia')->count();
         $adminCount      = User::where('role', 'admin')->count();
         $panitiaCount    = User::where('role', 'panitia')->count();
-<<<<<<< HEAD
-        $userCount       = User::whereNotIn('role', ['admin', 'panitia'])->count();
-=======
->>>>>>> d973dae7c960f2758ba29fb556527a5b950ea587
         $recentUsers     = User::latest()->limit(5)->get();
 
         $totalTickets = 0;

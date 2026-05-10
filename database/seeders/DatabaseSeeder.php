@@ -68,7 +68,6 @@ class DatabaseSeeder extends Seeder
             'reason'       => 'Tournament olahraga antar kampus',
         ]);
 
-        // Panitia pending
         User::create([
             'name'         => 'Komunitas Fotografi',
             'nim'          => '4342301005',
@@ -103,9 +102,24 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image.png',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Early Bird', 'price' => 20000, 'quota' => 100],
-                    ['name' => 'Normal',     'price' => 50000, 'quota' => 200],
-                    ['name' => 'VIP',        'price' => 70000, 'quota' => 50],
+                    [
+                        'name'        => 'Early Bird',
+                        'description' => 'Harga spesial untuk pembelian awal! Dapatkan akses penuh ke semua area festival selama 3 hari. Kuota terbatas, buruan!',
+                        'price'       => 20000,
+                        'quota'       => 100,
+                    ],
+                    [
+                        'name'        => 'Normal',
+                        'description' => 'Tiket reguler akses penuh 3 hari festival. Nikmati semua rangkaian acara: kompetisi, pameran, job fair, dan bazaar.',
+                        'price'       => 50000,
+                        'quota'       => 200,
+                    ],
+                    [
+                        'name'        => 'VIP',
+                        'description' => 'Akses eksklusif area VIP, tempat duduk priority, welcome drink, dan goodie bag spesial Teknovasi 2025.',
+                        'price'       => 70000,
+                        'quota'       => 50,
+                    ],
                 ],
             ],
             [
@@ -120,9 +134,24 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image1.png',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Mahasiswa',    'price' => 0,      'quota' => 300],
-                    ['name' => 'Umum',         'price' => 50000,  'quota' => 100],
-                    ['name' => 'Professional', 'price' => 150000, 'quota' => 50],
+                    [
+                        'name'        => 'Mahasiswa',
+                        'description' => 'Gratis untuk seluruh mahasiswa aktif! Wajib bawa KTM saat registrasi. Termasuk snack, materi seminar, dan e-sertifikat.',
+                        'price'       => 0,
+                        'quota'       => 300,
+                    ],
+                    [
+                        'name'        => 'Umum',
+                        'description' => 'Terbuka untuk masyarakat umum. Termasuk snack, materi seminar, dan e-sertifikat kehadiran.',
+                        'price'       => 50000,
+                        'quota'       => 100,
+                    ],
+                    [
+                        'name'        => 'Professional',
+                        'description' => 'Paket lengkap untuk profesional: makan siang, networking session eksklusif, sertifikat tercetak, dan akses workshop lanjutan.',
+                        'price'       => 150000,
+                        'quota'       => 50,
+                    ],
                 ],
             ],
             [
@@ -137,9 +166,24 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image3.jpeg',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Festival', 'price' => 35000,  'quota' => 500],
-                    ['name' => 'Tribun',   'price' => 75000,  'quota' => 200],
-                    ['name' => 'VVIP',     'price' => 150000, 'quota' => 50],
+                    [
+                        'name'        => 'Festival',
+                        'description' => 'Akses masuk area festival standing. Nikmati penampilan seluruh artis dari depan panggung bersama ribuan penonton lainnya.',
+                        'price'       => 35000,
+                        'quota'       => 500,
+                    ],
+                    [
+                        'name'        => 'Tribun',
+                        'description' => 'Kursi tribun dengan pandangan terbaik ke panggung. Lebih nyaman, lebih eksklusif. Termasuk 1 free minuman.',
+                        'price'       => 75000,
+                        'quota'       => 200,
+                    ],
+                    [
+                        'name'        => 'VVIP',
+                        'description' => 'Pengalaman konser terbaik: area VVIP di depan panggung, sofa eksklusif, 2 free minuman, foto bersama artis, dan merchandise resmi.',
+                        'price'       => 150000,
+                        'quota'       => 50,
+                    ],
                 ],
             ],
             [
@@ -154,8 +198,18 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image4.png',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Penonton Reguler', 'price' => 10000, 'quota' => 1000],
-                    ['name' => 'Penonton VIP',     'price' => 30000, 'quota' => 200],
+                    [
+                        'name'        => 'Penonton Reguler',
+                        'description' => 'Akses menonton seluruh pertandingan selama 3 hari di area tribune reguler. Berlaku untuk satu orang per hari.',
+                        'price'       => 10000,
+                        'quota'       => 1000,
+                    ],
+                    [
+                        'name'        => 'Penonton VIP',
+                        'description' => 'Kursi VIP terbaik di tribun utama dengan akses 3 hari penuh. Termasuk snack dan minuman gratis setiap hari.',
+                        'price'       => 30000,
+                        'quota'       => 200,
+                    ],
                 ],
             ],
             [
@@ -170,8 +224,18 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image5.png',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Peserta (per tim)', 'price' => 100000, 'quota' => 50],
-                    ['name' => 'Penonton',          'price' => 0,      'quota' => 200],
+                    [
+                        'name'        => 'Peserta (per tim)',
+                        'description' => 'Registrasi tim (maks. 3 orang). Termasuk akses lab 24 jam, makan malam + sarapan, kaos peserta, sertifikat, dan kesempatan memenangkan total hadiah Rp 9.500.000.',
+                        'price'       => 100000,
+                        'quota'       => 50,
+                    ],
+                    [
+                        'name'        => 'Penonton',
+                        'description' => 'Akses gratis untuk menonton jalannya hackathon dan menghadiri sesi presentasi final. Hadir dan saksikan inovasi terbaik mahasiswa!',
+                        'price'       => 0,
+                        'quota'       => 200,
+                    ],
                 ],
             ],
             [
@@ -186,8 +250,18 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image6.png',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Early Bird', 'price' => 75000,  'quota' => 30],
-                    ['name' => 'Regular',    'price' => 100000, 'quota' => 50],
+                    [
+                        'name'        => 'Early Bird',
+                        'description' => 'Daftar lebih awal, hemat lebih banyak! Fasilitas sama dengan Regular: 2 hari workshop, modul cetak, makan siang, dan sertifikat. Kuota sangat terbatas!',
+                        'price'       => 75000,
+                        'quota'       => 30,
+                    ],
+                    [
+                        'name'        => 'Regular',
+                        'description' => 'Paket lengkap 2 hari workshop intensif UI/UX. Termasuk modul cetak, akses materi digital, makan siang 2x, snack, dan sertifikat resmi.',
+                        'price'       => 100000,
+                        'quota'       => 50,
+                    ],
                 ],
             ],
             [
@@ -202,8 +276,18 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image7.png',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Umum', 'price' => 25000, 'quota' => 1000],
-                    ['name' => 'VIP',  'price' => 75000, 'quota' => 100],
+                    [
+                        'name'        => 'Umum',
+                        'description' => 'Akses penuh ke seluruh area festival: pameran, pentas seni, bazaar UMKM, dan konser penutup. Rayakan pergantian tahun bersama!',
+                        'price'       => 25000,
+                        'quota'       => 1000,
+                    ],
+                    [
+                        'name'        => 'VIP',
+                        'description' => 'Area VIP eksklusif dengan tempat duduk terbaik di depan panggung konser. Termasuk goodie bag, free drink, dan akses area khusus countdown 2026.',
+                        'price'       => 75000,
+                        'quota'       => 100,
+                    ],
                 ],
             ],
             [
@@ -218,8 +302,18 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image.png',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Reguler', 'price' => 15000, 'quota' => 300],
-                    ['name' => 'VIP',     'price' => 40000, 'quota' => 50],
+                    [
+                        'name'        => 'Reguler',
+                        'description' => 'Nikmati malam akustik yang syahdu di taman kampus. Akses ke seluruh area outdoor dengan suasana cozy dan penampilan musisi berbakat.',
+                        'price'       => 15000,
+                        'quota'       => 300,
+                    ],
+                    [
+                        'name'        => 'VIP',
+                        'description' => 'Area VIP duduk lesehan eksklusif paling dekat dengan panggung. Termasuk 1 free minuman pilihan dan snack ringan sepanjang malam.',
+                        'price'       => 40000,
+                        'quota'       => 50,
+                    ],
                 ],
             ],
             [
@@ -234,11 +328,20 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image5.png',
                 'status'      => 'published',
                 'tickets'     => [
-                    ['name' => 'Peserta', 'price' => 50000, 'quota' => 128],
-                    ['name' => 'Penonton', 'price' => 5000, 'quota' => 500],
+                    [
+                        'name'        => 'Peserta',
+                        'description' => 'Tiket pendaftaran untuk 1 kategori pertandingan. Termasuk shuttlecock resmi, nomor punggung, dan sertifikat peserta. Bisa daftar lebih dari 1 kategori.',
+                        'price'       => 50000,
+                        'quota'       => 128,
+                    ],
+                    [
+                        'name'        => 'Penonton',
+                        'description' => 'Akses menonton seluruh pertandingan selama 3 hari. Saksikan atlet-atlet terbaik se-Batam bersaing memperebutkan total hadiah Rp 8.000.000.',
+                        'price'       => 5000,
+                        'quota'       => 500,
+                    ],
                 ],
             ],
-            // Draft - tidak muncul di publik
             [
                 'user_id'     => $panitia2->id,
                 'category_id' => $katTeknologi->id,
@@ -251,7 +354,12 @@ class DatabaseSeeder extends Seeder
                 'poster'      => 'image1.png',
                 'status'      => 'draft',
                 'tickets'     => [
-                    ['name' => 'Umum', 'price' => 0, 'quota' => 200],
+                    [
+                        'name'        => 'Umum',
+                        'description' => 'Akses gratis untuk semua peserta. Termasuk e-sertifikat dan materi seminar digital.',
+                        'price'       => 0,
+                        'quota'       => 200,
+                    ],
                 ],
             ],
         ];
@@ -264,11 +372,12 @@ class DatabaseSeeder extends Seeder
 
             foreach ($tickets as $ticket) {
                 TicketType::create([
-                    'event_id' => $event->id,
-                    'name'     => $ticket['name'],
-                    'price'    => $ticket['price'],
-                    'quota'    => $ticket['quota'],
-                    'sold'     => 0,
+                    'event_id'    => $event->id,
+                    'name'        => $ticket['name'],
+                    'description' => $ticket['description'],
+                    'price'       => $ticket['price'],
+                    'quota'       => $ticket['quota'],
+                    'sold'        => 0,
                 ]);
             }
         }
