@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+php@extends('layouts.admin')
 @section('title', 'Admin Dashboard')
 @section('page-title', 'Admin Dashboard')
 @section('page-sub', 'Pantau seluruh aktivitas platform')
