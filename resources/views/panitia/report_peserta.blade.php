@@ -12,6 +12,13 @@
                 <label class="text-xs font-bold text-gray-600 uppercase">Event</label>
                 <select name="event_id" class="border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
                     <option value="">Pilih Event</option>
+
+                    @foreach($events as $event)
+                        <option value="{{ $event->id }}" {{ request('event_id') == $event->id ? 'selected' : '' }}>
+                            {{ $event->name }}
+                        </option>
+                    @endforeach
+
                 </select>
             </div>
 
