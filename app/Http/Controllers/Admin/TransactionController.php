@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Event;
 use App\Models\Registration;
 use Illuminate\Http\Request;
 
@@ -31,6 +32,24 @@ class TransactionController extends Controller
             });
         }
 
+        // Filter event_id (dipakai dropdown di view)
+        if ($request->filled('event_id')) {
+            $query->where('event_id', $request->event_id);
+        }
+
+        // Filter metode pembayaran
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        // Filter rentang tanggal
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
         $transactions = $query->paginate(20);
 
         $events = \App\Models\Event::orderBy('title')->get();
@@ -43,9 +62,30 @@ class TransactionController extends Controller
         $totalRevenue = $totalSuccess * 2000;                    // fee platform Rp2.000/tiket
         $totalPayout  = $totalGMV - $totalRevenue;               // estimasi dana ke panitia
 
+        // Variabel tambahan yang dibutuhkan view
+        $totalGMV     = Registration::sum('total_price');
+        $totalSuccess = $totalConfirmed;
+        $totalFailed  = Registration::where('status', 'cancelled')->count();
+        $totalPayout  = $totalGMV - $totalRevenue;
+
+        // Daftar event untuk dropdown filter di view
+        $events = Event::orderBy('title')->get(['id', 'title']);
+
         return view('admin.transactions.index', compact(
+<<<<<<< Updated upstream
             'transactions', 'events', 'totalGMV', 'totalSuccess', 'totalPending', 'totalFailed',
             'totalRevenue', 'totalPayout'
+=======
+            'transactions',
+            'totalRevenue',
+            'totalPending',
+            'totalConfirmed',
+            'totalGMV',
+            'totalSuccess',
+            'totalFailed',
+            'totalPayout',
+            'events'
+>>>>>>> Stashed changes
         ));
     }
 
@@ -76,9 +116,6 @@ class TransactionController extends Controller
 
         $transactions = $query->get();
 
-        $format = $request->input('format', 'csv');
-
-        // Export CSV
         $filename = 'transaksi-' . now()->format('Ymd-His') . '.csv';
         $headers = [
             'Content-Type'        => 'text/csv',

@@ -5,129 +5,246 @@
 
 @section('content')
 
-{{-- STAT CARDS --}}
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div style="background:white;border-radius:12px;padding:20px;display:flex;align-items:flex-start;justify-content:space-between">
-        <div>
-            <p style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em">Total Customer</p>
-            <p style="font-size:26px;font-weight:800;color:#111;margin-top:4px">{{ $totalUsers ?? 0 }}</p>
-            <p style="font-size:12px;color:#22c55e;margin-top:2px;font-weight:600">↑ +12 bulan ini</p>
+
+{{-- ── STAT CARDS ── --}}
+<div class="db-cards">
+    {{-- Total Customer --}}
+    <div class="db-card">
+        <div class="db-card-info">
+            <p class="label">Total Customer</p>
+            <p class="val">{{ $totalUsers ?? 0 }}</p>
+            <p class="sub">↑ +12 bulan ini</p>
         </div>
-        <div style="width:40px;height:40px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center">
-            <svg style="width:20px;height:20px;color:#2563eb" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        <div class="db-card-icon" style="background:#eff6ff">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#2563eb" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-4a4 4 0 100-8 4 4 0 000 8zm6 4a4 4 0 10-6.32-3.32"/>
             </svg>
         </div>
     </div>
-    <div style="background:white;border-radius:12px;padding:20px;display:flex;align-items:flex-start;justify-content:space-between">
-        <div>
-            <p style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em">Total Event</p>
-            <p style="font-size:26px;font-weight:800;color:#111;margin-top:4px">{{ $totalEvents ?? 0 }}</p>
-            <p style="font-size:12px;color:#22c55e;margin-top:2px;font-weight:600">↑ +3 minggu ini</p>
+
+    {{-- Total Event --}}
+    <div class="db-card">
+        <div class="db-card-info">
+            <p class="label">Total Event</p>
+            <p class="val">{{ $totalEvents ?? 0 }}</p>
+            <p class="sub">↑ +3 minggu ini</p>
         </div>
-        <div style="width:40px;height:40px;border-radius:10px;background:#f5eeff;display:flex;align-items:center;justify-content:center">
-            <svg style="width:20px;height:20px;color:#6B0080" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        <div class="db-card-icon" style="background:#f5eeff">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#6B0080" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
         </div>
     </div>
-    <div style="background:white;border-radius:12px;padding:20px;display:flex;align-items:flex-start;justify-content:space-between">
-        <div>
-            <p style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em">Tiket Terjual</p>
-            <p style="font-size:26px;font-weight:800;color:#111;margin-top:4px">{{ $totalTickets ?? 0 }}</p>
-            <p style="font-size:12px;color:#22c55e;margin-top:2px;font-weight:600">↑ +89 hari ini</p>
+
+    {{-- Tiket Terjual --}}
+    <div class="db-card">
+        <div class="db-card-info">
+            <p class="label">Tiket Terjual</p>
+            <p class="val">{{ $totalTickets ?? 0 }}</p>
+            <p class="sub">↑ +89 hari ini</p>
         </div>
-        <div style="width:40px;height:40px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center">
-            <svg style="width:20px;height:20px;color:#16a34a" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+        <div class="db-card-icon" style="background:#f0fdf4">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#16a34a" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
             </svg>
         </div>
     </div>
-    <div style="background:white;border-radius:12px;padding:20px;display:flex;align-items:flex-start;justify-content:space-between">
-        <div>
-            <p style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em">Total Revenue</p>
-            <p style="font-size:22px;font-weight:800;color:#111;margin-top:4px">Rp{{ number_format($totalRevenue ?? 0,0,',','.') }}</p>
-            <p style="font-size:12px;color:#22c55e;margin-top:2px;font-weight:600">↑ Semester ini</p>
+
+    {{-- Total Revenue --}}
+    <div class="db-card">
+        <div class="db-card-info">
+            <p class="label">Total Revenue</p>
+            <p class="val" style="font-size:20px">Rp{{ number_format($totalRevenue ?? 0, 0, ',', '.') }}</p>
+            <p class="sub">↑ Semester ini</p>
         </div>
-        <div style="width:40px;height:40px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center">
-            <svg style="width:20px;height:20px;color:#ea580c" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <div class="db-card-icon" style="background:#fff7ed">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#ea580c" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
         </div>
     </div>
 </div>
 
-{{-- MAIN GRID --}}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+{{-- ── MAIN GRID ── --}}
+<div class="db-main">
 
-    {{-- RECENT USERS --}}
-    <div style="grid-column:span 2;background:white;border-radius:14px;padding:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <h2 style="font-size:15px;font-weight:700;color:#111">Pengguna Terbaru</h2>
-            <a href="{{ route('admin.users.index') }}" style="font-size:12px;color:#6B0080;font-weight:600;text-decoration:none">Lihat semua →</a>
+    {{-- Grafik Penjualan Tiket --}}
+    <div class="db-chart-card">
+        <div class="db-chart-header">
+            <h2>Grafik Penjualan Tiket</h2>
+            <select class="db-chart-period" id="periodSelect" onchange="updateChart(this.value)">
+                <option value="7">7 Hari Terakhir</option>
+                <option value="30">30 Hari Terakhir</option>
+            </select>
         </div>
-        <table style="width:100%;border-collapse:collapse">
-            <thead>
-                <tr style="border-bottom:2px solid #f3f4f6">
-                    <th style="text-align:left;padding:8px 0;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase">Pengguna</th>
-                    <th style="text-align:left;padding:8px 0;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase">Role</th>
-                    <th style="text-align:left;padding:8px 0;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase">Bergabung</th>
-                    <th style="text-align:right;padding:8px 0;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($recentUsers ?? [] as $user)
-                <tr style="border-bottom:1px solid #f9fafb">
-                    <td style="padding:12px 0">
-                        <div style="display:flex;align-items:center;gap:10px">
-                            <div style="width:34px;height:34px;border-radius:50%;background:#6B0080;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
-                            </div>
-                            <div>
-                                <p style="font-size:13px;font-weight:600;color:#111">{{ $user->name }}</p>
-                                <p style="font-size:11px;color:#9ca3af">{{ $user->email }}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td style="padding:12px 0">
-                        <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;
-                            {{ $user->role === 'admin' ? 'background:#f5eeff;color:#6B0080' : ($user->role === 'panitia' ? 'background:#eff6ff;color:#2563eb' : 'background:#f3f4f6;color:#6b7280') }}">
-                            {{ ucfirst($user->role ?? 'user') }}
-                        </span>
-                    </td>
-                    <td style="padding:12px 0;font-size:12px;color:#9ca3af">{{ $user->created_at->format('d M Y') }}</td>
-                    <td style="padding:12px 0;text-align:right">
-                        <a href="{{ route('admin.users.index') }}" style="font-size:12px;color:#6B0080;font-weight:600;text-decoration:none">Lihat →</a>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="4" style="text-align:center;padding:32px;color:#9ca3af;font-size:13px">Belum ada pengguna</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="db-legend">
+            <span class="db-legend-item">
+                <span class="db-legend-dot" style="background:#6B0080;border:2px solid #6B0080"></span>
+                Tiket Terjual
+            </span>
+            <span class="db-legend-item">
+                <span class="db-legend-rect" style="background:#c084fc"></span>
+                Pendapatan (Rp)
+            </span>
+            <span style="margin-left:auto;font-size:11px;color:#9ca3af;align-self:center">Pendapatan (Rp)</span>
+        </div>
+        <canvas id="salesChart" height="200"></canvas>
+
+        {{-- Sub Stats --}}
+        <div class="db-sub-stats">
+            <div class="db-sub-stat">
+                <p class="label">Total Tiket Terjual</p>
+                <p class="val">{{ number_format($totalTickets ?? 0) }}</p>
+                <p class="sub">↑ +15,2% dari 7 hari sebelumnya</p>
+            </div>
+            <div class="db-sub-stat">
+                <p class="label">Total Pendapatan</p>
+                <p class="val" style="font-size:16px">Rp{{ number_format($totalRevenue ?? 0, 0, ',', '.') }}</p>
+                <p class="sub">↑ +18,7% dari 7 hari sebelumnya</p>
+            </div>
+        </div>
     </div>
 
     {{-- RIGHT PANEL --}}
-    <div style="display:flex;flex-direction:column;gap:14px">
-        <div style="background:white;border-radius:14px;padding:20px">
-            <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:14px">Role Pengguna</h2>
-            @foreach([['Admin',$adminCount??0,'#6B0080','#f5eeff'],['Panitia',$panitiaCount??0,'#2563eb','#eff6ff'],['Customer',$userCount??0,'#16a34a','#f0fdf4']] as [$label,$count,$color,$bg])
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f9fafb">
-                <div style="display:flex;align-items:center;gap:8px">
-                    <div style="width:8px;height:8px;border-radius:50%;background:{{ $color }}"></div>
-                    <span style="font-size:13px;color:#374151;font-weight:500">{{ $label }}</span>
-                </div>
-                <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;background:{{ $bg }};color:{{ $color }}">{{ $count }}</span>
+    <div class="db-right">
+
+        {{-- Role Pengguna --}}
+        <div class="db-panel">
+            <h2>Role Pengguna</h2>
+            <div class="role-row">
+                <span class="role-label">
+                    <span class="role-dot" style="background:#6B0080"></span>Admin
+                </span>
+                <span class="role-badge" style="background:#f5eeff;color:#6B0080">{{ $adminCount ?? 0 }}</span>
             </div>
-            @endforeach
+            <div class="role-row">
+                <span class="role-label">
+                    <span class="role-dot" style="background:#2563eb"></span>Panitia
+                </span>
+                <span class="role-badge" style="background:#eff6ff;color:#2563eb">{{ $panitiaCount ?? 0 }}</span>
+            </div>
+            <div class="role-row">
+                <span class="role-label">
+                    <span class="role-dot" style="background:#16a34a"></span>Customer
+                </span>
+                <span class="role-badge" style="background:#f0fdf4;color:#16a34a">{{ $userCount ?? 0 }}</span>
+            </div>
         </div>
-        <div style="background:white;border-radius:14px;padding:20px">
-            <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:14px">Quick Action</h2>
-            <a href="{{ route('admin.users.index') }}" style="display:flex;align-items:center;padding:10px 14px;background:#6B0080;color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:8px">👥 Kelola Pengguna</a>
-            <a href="{{ route('admin.users.index', ['role' => 'panitia', 'status' => 'pending']) }}" style="display:flex;align-items:center;padding:10px 14px;background:#eff6ff;color:#2563eb;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:8px">⏳ Panitia Pending</a>
-            <a href="{{ route('admin.settings') }}" style="display:flex;align-items:center;padding:10px 14px;background:#f3f4f6;color:#374151;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600">⚙️ Pengaturan</a>
+
+        {{-- Quick Action --}}
+        <div class="db-panel">
+            <h2>Quick Action</h2>
+            <a href="{{ route('admin.users.index') }}"
+               class="qa-btn" style="background:#6B0080;color:#fff">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-4a4 4 0 100-8 4 4 0 000 8z"/>
+                </svg>
+                Kelola Pengguna
+            </a>
+            <a href="{{ route('admin.users.index', ['role'=>'panitia','status'=>'pending']) }}"
+               class="qa-btn" style="background:#eff6ff;color:#2563eb">
+                ⏳ Panitia Pending
+            </a>
+            <a href="{{ route('admin.settings') }}"
+               class="qa-btn" style="background:#f3f4f6;color:#374151">
+                ⚙️ Pengaturan
+            </a>
         </div>
+
     </div>
 </div>
+
+{{-- Chart.js --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+@php
+    $labels7  = collect(range(6,0,-1))->map(fn($i) => now()->subDays($i)->format('d M'))->values();
+    $labels30 = collect(range(29,0,-1))->map(fn($i) => now()->subDays($i)->format('d M'))->values();
+    $tickets30 = collect(range(0,29))->map(fn($i) => rand(5,50))->values();
+    $revenue30 = collect(range(0,29))->map(fn($i) => rand(25000,250000))->values();
+@endphp
+const data7 = {
+    labels:  @json($labels7),
+    tickets: [12, 18, 25, 32, 28, 35, 40],
+    revenue: [60000, 90000, 125000, 160000, 140000, 175000, 200000],
+};
+const data30 = {
+    labels:  @json($labels30),
+    tickets: @json($tickets30),
+    revenue: @json($revenue30),
+};
+
+const ctx = document.getElementById('salesChart').getContext('2d');
+const chart = new Chart(ctx, {
+    data: {
+        labels: data7.labels,
+        datasets: [
+            {
+                type: 'line',
+                label: 'Tiket Terjual',
+                data: data7.tickets,
+                borderColor: '#6B0080',
+                backgroundColor: 'transparent',
+                pointBackgroundColor: '#6B0080',
+                pointRadius: 4,
+                tension: 0.35,
+                yAxisID: 'y',
+                borderWidth: 2.5,
+            },
+            {
+                type: 'line',
+                label: 'Pendapatan (Rp)',
+                data: data7.revenue,
+                borderColor: 'rgba(192,132,252,0)',
+                backgroundColor: 'rgba(192,132,252,0.18)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 0,
+                yAxisID: 'y2',
+                borderWidth: 0,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => ctx.datasetIndex === 0
+                        ? `Tiket: ${ctx.parsed.y}`
+                        : `Rp ${ctx.parsed.y.toLocaleString('id-ID')}`
+                }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9ca3af' } },
+            y: {
+                position: 'left',
+                grid: { color: '#f3f4f6' },
+                ticks: { font: { size: 11 }, color: '#9ca3af', stepSize: 10 },
+                title: { display: false }
+            },
+            y2: {
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: {
+                    font: { size: 11 }, color: '#9ca3af',
+                    callback: v => v >= 1000 ? (v/1000)+'K' : v
+                }
+            }
+        }
+    }
+});
+
+function updateChart(days) {
+    const d = days == '7' ? data7 : data30;
+    chart.data.labels = d.labels;
+    chart.data.datasets[0].data = d.tickets;
+    chart.data.datasets[1].data = d.revenue;
+    chart.update();
+}
+</script>
 
 @endsection
