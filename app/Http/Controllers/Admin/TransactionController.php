@@ -33,13 +33,19 @@ class TransactionController extends Controller
 
         $transactions = $query->paginate(20);
 
+        $events = \App\Models\Event::orderBy('title')->get();
+
         // Statistik ringkas
-        $totalRevenue   = Registration::where('status', 'confirmed')->sum('total_price');
-        $totalPending   = Registration::where('status', 'pending')->count();
-        $totalConfirmed = Registration::where('status', 'confirmed')->count();
+        $totalGMV     = Registration::where('status', 'confirmed')->sum('total_price');
+        $totalSuccess = Registration::where('status', 'confirmed')->count();
+        $totalPending = Registration::where('status', 'pending')->count();
+        $totalFailed  = Registration::where('status', 'cancelled')->count();
+        $totalRevenue = $totalSuccess * 2000;                    // fee platform Rp2.000/tiket
+        $totalPayout  = $totalGMV - $totalRevenue;               // estimasi dana ke panitia
 
         return view('admin.transactions.index', compact(
-            'transactions', 'totalRevenue', 'totalPending', 'totalConfirmed'
+            'transactions', 'events', 'totalGMV', 'totalSuccess', 'totalPending', 'totalFailed',
+            'totalRevenue', 'totalPayout'
         ));
     }
 
