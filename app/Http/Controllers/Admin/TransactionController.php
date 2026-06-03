@@ -55,37 +55,12 @@ class TransactionController extends Controller
         $events = \App\Models\Event::orderBy('title')->get();
 
         // Statistik ringkas
-        $totalGMV     = Registration::where('status', 'confirmed')->sum('total_price');
-        $totalSuccess = Registration::where('status', 'confirmed')->count();
-        $totalPending = Registration::where('status', 'pending')->count();
-        $totalFailed  = Registration::where('status', 'cancelled')->count();
-        $totalRevenue = $totalSuccess * 2000;                    // fee platform Rp2.000/tiket
-        $totalPayout  = $totalGMV - $totalRevenue;               // estimasi dana ke panitia
-
-        // Variabel tambahan yang dibutuhkan view
-        $totalGMV     = Registration::sum('total_price');
-        $totalSuccess = $totalConfirmed;
-        $totalFailed  = Registration::where('status', 'cancelled')->count();
-        $totalPayout  = $totalGMV - $totalRevenue;
-
-        // Daftar event untuk dropdown filter di view
-        $events = Event::orderBy('title')->get(['id', 'title']);
+        $totalRevenue   = Registration::where('status', 'confirmed')->sum('total_price');
+        $totalPending   = Registration::where('status', 'pending')->count();
+        $totalConfirmed = Registration::where('status', 'confirmed')->count();
 
         return view('admin.transactions.index', compact(
-<<<<<<< Updated upstream
-            'transactions', 'events', 'totalGMV', 'totalSuccess', 'totalPending', 'totalFailed',
-            'totalRevenue', 'totalPayout'
-=======
-            'transactions',
-            'totalRevenue',
-            'totalPending',
-            'totalConfirmed',
-            'totalGMV',
-            'totalSuccess',
-            'totalFailed',
-            'totalPayout',
-            'events'
->>>>>>> Stashed changes
+            'transactions', 'totalRevenue', 'totalPending', 'totalConfirmed'
         ));
     }
 
