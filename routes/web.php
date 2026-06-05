@@ -31,11 +31,15 @@ Route::post('/event/{event:slug}/checkout', [CheckoutController::class, 'store']
 // Step 2: Proses form checkout → simpan ke DB → redirect ke payment
 Route::post('/event/{event:slug}/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 
+Route::post('/midtrans/notification', [CheckoutController::class, 'notification'])
+    ->name('midtrans.notification');
+
 // Step 3: Halaman tunggu pembayaran (VA)
 Route::get('/event/{event:slug}/payment', [CheckoutController::class, 'payment'])->name('checkout.payment');
 
 // Step 4: Ringkasan tiket
 Route::get('/event/{event:slug}/summary', [CheckoutController::class, 'summary'])->name('checkout.summary');
+
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 

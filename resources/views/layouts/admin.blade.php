@@ -7,6 +7,249 @@
     <title>@yield('title', 'Admin') - SIMETIX Admin</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
+        /* ── Stat Cards ── */
+        .db-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px
+        }
+
+        @media(max-width:900px) {
+            .db-cards {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+
+        .db-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px 20px 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+        }
+
+        .db-card-info p.label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            margin: 0
+        }
+
+        .db-card-info p.val {
+            font-size: 26px;
+            font-weight: 800;
+            color: #111827;
+            margin: 4px 0 2px;
+            line-height: 1
+        }
+
+        .db-card-info p.sub {
+            font-size: 12px;
+            color: #22c55e;
+            font-weight: 600;
+            margin: 0
+        }
+
+        .db-card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0
+        }
+
+        /* ── Main Grid ── */
+        .db-main {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px
+        }
+
+        @media(max-width:1000px) {
+            .db-main {
+                grid-template-columns: 1fr
+            }
+        }
+
+        /* ── Chart Card ── */
+        .db-chart-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 22px 22px 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+        }
+
+        .db-chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px
+        }
+
+        .db-chart-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0
+        }
+
+        .db-chart-period {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer
+        }
+
+        .db-legend {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 10px
+        }
+
+        .db-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500
+        }
+
+        .db-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%
+        }
+
+        .db-legend-rect {
+            width: 14px;
+            height: 10px;
+            border-radius: 3px;
+            opacity: .5
+        }
+
+        /* ── Sub Stats ── */
+        .db-sub-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px
+        }
+
+        .db-sub-stat {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 14px 16px
+        }
+
+        .db-sub-stat p.label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin: 0
+        }
+
+        .db-sub-stat p.val {
+            font-size: 20px;
+            font-weight: 800;
+            color: #111827;
+            margin: 4px 0 2px
+        }
+
+        .db-sub-stat p.sub {
+            font-size: 11px;
+            color: #22c55e;
+            font-weight: 600;
+            margin: 0
+        }
+
+        /* ── Right Panel ── */
+        .db-right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px
+        }
+
+        .db-panel {
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+        }
+
+        .db-panel h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 14px
+        }
+
+        /* Role rows */
+        .role-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid #f3f4f6
+        }
+
+        .role-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0
+        }
+
+        .role-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            margin-right: 8px
+        }
+
+        .role-label {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #374151;
+            font-weight: 500
+        }
+
+        .role-badge {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 20px
+        }
+
+        /* Quick actions */
+        .qa-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px
+        }
+
+        .qa-btn:last-child {
+            margin-bottom: 0
+        }
+
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
         * {

@@ -10,14 +10,14 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('nim');
-            $table->string('email')->unique();
+            $table->string('name', 50);
+            $table->integer('nim');
+            $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password', 20);
             $table->enum('role', ['admin', 'panitia'])->default('panitia');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->string('organization')->nullable()->comment('Nama UKM/Himpunan');
+            $table->string('organization', 50)->nullable()->comment('Nama UKM/Himpunan');
             $table->text('reason')->nullable()->comment('Alasan daftar sebagai panitia');
             $table->rememberToken();
             $table->timestamps();

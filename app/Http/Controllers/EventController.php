@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
+    /**
+     * Home page — tampilkan maksimal 8 event terbaru (tanpa pagination).
+     */
     public function index(Request $request)
     {
         $categories = EventCategory::orderBy('name')->get();
@@ -15,7 +18,6 @@ class EventController extends Controller
         $query = Event::with(['ticketTypes', 'category'])
             ->where('status', 'published');
 
-        // Filter keyword (judul / lokasi)
         if ($request->filled('search')) {
             $q = $request->search;
             $query->where(function ($q2) use ($q) {
@@ -24,18 +26,21 @@ class EventController extends Controller
             });
         }
 
-        // Filter kategori (via ikon filter)
         if ($request->filled('category')) {
             $query->whereHas('category', function ($q2) use ($request) {
                 $q2->where('id', $request->category);
             });
         }
 
-        $events = $query->latest()->paginate(8)->withQueryString();
+        // Ambil maksimal 8 event — tanpa pagination
+        $events = $query->latest()->limit(8)->get();
 
         return view('home', compact('events', 'categories'));
     }
 
+    /**
+     * Detail event.
+     */
     public function show(Event $event)
     {
         abort_if($event->status !== 'published', 404);
@@ -43,6 +48,9 @@ class EventController extends Controller
         return view('detailEvent', compact('event'));
     }
 
+    /**
+     * Homepage (semua event) — dengan pagination ungu.
+     */
     public function event(Request $request)
     {
         $categories = EventCategory::orderBy('name')->get();
