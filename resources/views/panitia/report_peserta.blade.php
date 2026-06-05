@@ -15,10 +15,9 @@
 
                     @foreach($events as $event)
                         <option value="{{ $event->id }}" {{ request('event_id') == $event->id ? 'selected' : '' }}>
-                            {{ $event->name }}
+                            {{ $event->name ?? $event->title ?? $event->nama ?? 'Nama Event Tidak Ditemukan' }}
                         </option>
                     @endforeach
-
                 </select>
             </div>
 

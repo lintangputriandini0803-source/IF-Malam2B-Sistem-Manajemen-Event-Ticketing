@@ -43,6 +43,6 @@ class ParticipantController extends Controller
         // Eksekusi query dengan pagination
         $peserta = $query->latest()->paginate(10)->withQueryString();
 
-        return view('panitia.report_peserta', compact('peserta', 'event'));
+        return view('panitia.report_peserta', compact('peserta', 'events'));
     }
 }
