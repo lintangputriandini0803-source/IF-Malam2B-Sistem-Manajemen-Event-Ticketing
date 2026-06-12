@@ -26,11 +26,11 @@ class LoginController extends Controller
             $user = Auth::user();
 
             if ($user->isAdmin()) {
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('admin.dashboard')->with('success', 'Login Sebagai Admin Berhasil');
             }
 
             if ($user->isPanitia() && $user->isApproved()) {
-                return redirect()->route('panitia.dashboard');
+                return redirect()->route('panitia.dashboard')->with('success', 'Login Sebagai Panitia Berhasil');;
             }
 
             // Panitia pending/rejected
@@ -38,7 +38,7 @@ class LoginController extends Controller
             return redirect('/')->with('login_error', 'Akun kamu belum disetujui admin.');
         }
 
-        return redirect('/')->with('login_error', 'Email atau password salah.');
+        return redirect('/')->with('login_error', 'Email atau password salah');
     }
 
     public function logout(Request $request)
@@ -46,6 +46,6 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');
+        return redirect('/')->with('info', 'Anda Berhasil Logout');
     }
 }

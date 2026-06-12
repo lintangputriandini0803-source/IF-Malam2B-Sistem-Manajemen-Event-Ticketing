@@ -396,6 +396,7 @@
 </head>
 
 <body class="font-sans text-gray-900 relative overflow-x-hidden">
+    <x-toast />
 
 <!-- NAVBAR -->
 <!-- NAVBAR -->
@@ -410,9 +411,13 @@
         <div class="hidden md:flex items-center gap-7">
             <a href="{{ route('homepage') }}" class="nav-link {{ request()->routeIs('homepage') ? 'active' : '' }}">Event</a>
             <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">About Us</a>
-            <button onclick="openLoginModal()" class="btn-login">Login</button>
-        </div>
+            <a href="{{ route('blog') }}" class="nav-link {{ request()->routeIs('blog') ? 'active' : '' }}">blog</a>
 
+        </div>
+        <div>
+            <button onclick="openLoginModal()" class="btn-login">Login</button>
+
+        </div>
         {{-- Hamburger button (mobile only) --}}
         <button class="hamburger md:hidden" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
             <span></span>
@@ -431,17 +436,6 @@
 
 <!-- MAIN CONTENT -->
 <main class="mt-15">
-    @if(session('login_error'))
-    <div class="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-md px-4" style="z-index:999">
-        <div class="bg-white border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm shadow-lg flex items-center gap-2">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            {{ session('login_error') }}
-        </div>
-    </div>
-    @endif
-
     @if(session('success'))
     <div class="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-md px-4" style="z-index:999">
         <div class="bg-white border border-green-200 text-green-600 px-4 py-3 rounded-xl text-sm shadow-lg flex items-center gap-2">
@@ -467,7 +461,7 @@
             <p class="text-xs text-white/80 mb-2">Platform manajemen event & ticketing untuk organisasi mahasiswa Polibatam.</p>
             <p class="text-xs text-white/80 mb-2">Polibatam : Jl. Ahmad Yani, Batam Kota, Batam 29461,Kepulauan Riau, Indonesia</p>
             <p class="text-xs text-white/80 mb-2">Contact Polibatam : (0778) 469856</p>
-            <p class="text-xs text-white/80 mb-2">Contact Admin SIMETIX : 0878 4599 3443</p>
+            <p class="text-xs text-white/80 mb-2">Contact Admin SIMETIX : 0878 4599 3443 - 080808080808 - 0080808808080</p>
         </div>
 
         <div>

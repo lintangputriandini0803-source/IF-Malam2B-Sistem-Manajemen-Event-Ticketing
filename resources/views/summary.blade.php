@@ -11,6 +11,7 @@
     </style>
 </head>
 <body class="min-h-screen">
+    <x-toast />
 
 <!-- TOPBAR -->
 <div class="flex items-center justify-between px-6 py-4 bg-white shadow-sm sticky top-0 z-10">
@@ -102,7 +103,7 @@
         <div class="bg-white rounded-2xl shadow p-5 mb-4 flex items-center gap-4">
             {{-- QR Code placeholder --}}
             <div class="w-20 h-20 bg-gray-900 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{ urlencode($orderRef . '-' . $reg->id . '-' . $i) }}"
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{ urlencode($reg->reg_number . '-' . str_pad($i+1, 2, '0', STR_PAD_LEFT)) }}"
                      alt="QR" class="w-full h-full object-cover"
                      onerror="this.parentElement.innerHTML='<span class=\'text-white text-xs text-center\'>QR</span>'">
             </div>
