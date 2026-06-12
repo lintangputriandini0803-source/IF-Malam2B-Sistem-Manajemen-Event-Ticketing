@@ -16,11 +16,12 @@
     </style>
 </head>
 <body class="min-h-screen">
+    <x-toast />
 
 <!-- TOPBAR -->
 <div class="flex items-center justify-between px-6 py-4 bg-white shadow-sm sticky top-0 z-10">
     <a href="{{ route('event.show', $event->slug) }}" class="flex items-center gap-2 text-sm text-gray-600 hover:text-[#6B0080]">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 14 10">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 14 10">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
         </svg>
         Kembali
@@ -44,9 +45,7 @@
 <!-- CONTENT -->
 <div class="max-w-2xl mx-auto px-4 py-8">
 
-    {{-- ═══════════════════════════════════════════════════════
-         STEP 1: DETAIL (Ringkasan + Data Pembeli + Metode)
-    ═══════════════════════════════════════════════════════ --}}
+    {{-- ═══ STEP 1: DETAIL ═══ --}}
     <div id="page-1">
 
         {{-- Ringkasan Pemesanan --}}
@@ -58,8 +57,19 @@
                 @endif
                 <div>
                     <p class="font-bold text-sm">{{ strtoupper($event->title) }}</p>
-                    <p class="text-xs text-gray-500 mt-1">📅 {{ $event->event_date }}</p>
-                    <p class="text-xs text-gray-500">📍 {{ $event->location }}</p>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
+                        <svg class="w-3.5 h-3.5 text-[#9B30AF] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span>{{ $event->event_date }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5">
+                        <svg class="w-3.5 h-3.5 text-[#9B30AF] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span>{{ $event->location }}</span>
+                    </div>
                 </div>
             </div>
             @foreach($selectedTickets as $item)
@@ -82,31 +92,64 @@
             </div>
         </div>
 
-        {{-- Ringkasan Pembeli (Penanggung Jawab) --}}
+        {{-- Data Pembeli --}}
         <div class="bg-white rounded-2xl shadow p-5 mb-6">
             <h3 class="font-bold text-base mb-1">Ringkasan Pembeli</h3>
-            <p class="text-xs text-gray-400 mb-5">Tiket akan kami kirim ke email anda</p>
+            <div class="flex items-center gap-1.5 text-xs text-gray-400 mb-5">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                Tiket akan kami kirim ke email anda
+            </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            Nama <span class="text-red-500">*</span>
+                        </span>
+                    </label>
                     <input type="text" id="buyer-name" required
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
                            placeholder="Nama lengkap">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">NIM / NIK <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2"/>
+                            </svg>
+                            NIM / NIK <span class="text-red-500">*</span>
+                        </span>
+                    </label>
                     <input type="text" id="buyer-nim" required
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
                            placeholder="NIM atau NIK">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Email <span class="text-red-500">*</span>
+                        </span>
+                    </label>
                     <input type="email" id="buyer-email" required
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
                            placeholder="email@contoh.com">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">No HP <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            No HP <span class="text-red-500">*</span>
+                        </span>
+                    </label>
                     <input type="text" id="buyer-phone" required
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
                            placeholder="08xxxxxxxxxx">
@@ -114,188 +157,242 @@
             </div>
         </div>
 
-        {{-- Metode Pembayaran --}}
-        <div class="bg-white rounded-2xl shadow p-5 mb-6">
-            <div class="flex items-center gap-3 mb-4">
-                <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                </svg>
-                <span class="font-semibold">Bank Transfer</span>
-            </div>
-            @foreach([
-                ['value' => 'bca',     'label' => 'BCA Virtual Account',     'badge' => 'BCA',   'color' => 'text-blue-700'],
-                ['value' => 'mandiri', 'label' => 'Mandiri Virtual Account', 'badge' => 'MDR',   'color' => 'text-yellow-600'],
-                ['value' => 'bni',     'label' => 'BNI Virtual Account',     'badge' => 'BNI',   'color' => 'text-orange-600'],
-                ['value' => 'bri',     'label' => 'BRI Virtual Account',     'badge' => 'BRI',   'color' => 'text-blue-800'],
-                ['value' => 'permata', 'label' => 'Permata Virtual Account', 'badge' => 'PMT',   'color' => 'text-red-600'],
-            ] as $bank)
-            <label class="flex items-center gap-3 py-3 cursor-pointer border-b border-gray-50 last:border-0">
-                <input type="radio" name="payment_opt" value="{{ $bank['value'] }}"
-                       class="w-4 h-4 accent-purple-700">
-                <span class="text-xs font-bold {{ $bank['color'] }} bg-gray-100 px-2 py-1 rounded w-12 text-center">{{ $bank['badge'] }}</span>
-                <span class="text-sm text-gray-700">{{ $bank['label'] }}</span>
-            </label>
-            @endforeach
-        </div>
-
-        <button onclick="validateAndNext()"
-                class="w-full bg-[#6B0080] hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition mt-2">
+        <button onclick="showKonfirmasiPembeli()"
+                class="w-full bg-[#6B0080] hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition mt-2 flex items-center justify-center gap-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
             Lanjutkan Pembayaran
         </button>
     </div>
 
-    {{-- ═══════════════════════════════════════════════════════
-         STEP 2: PEMBAYARAN (Virtual Account)
-    ═══════════════════════════════════════════════════════ --}}
+    {{-- ═══ STEP 2: PEMBAYARAN (Midtrans Snap) ═══ --}}
     <div id="page-2" class="hidden">
 
-        {{-- Form tersembunyi untuk submit ke backend --}}
+        {{-- Form hidden untuk submit ke backend --}}
         <form id="process-form" action="{{ route('checkout.process', $event->slug) }}" method="POST">
             @csrf
-            <input type="hidden" name="buyer_name"     id="f-name">
-            <input type="hidden" name="buyer_nim"      id="f-nim">
-            <input type="hidden" name="buyer_email"    id="f-email">
-            <input type="hidden" name="buyer_phone"    id="f-phone">
-            <input type="hidden" name="payment_method" id="f-payment">
+            <input type="hidden" name="buyer_name"  id="f-name">
+            <input type="hidden" name="buyer_nim"   id="f-nim">
+            <input type="hidden" name="buyer_email" id="f-email">
+            <input type="hidden" name="buyer_phone" id="f-phone">
             @foreach($selectedTickets as $item)
             <input type="hidden" name="tickets[{{ $loop->index }}][id]"  value="{{ $item['ticket']->id }}">
             <input type="hidden" name="tickets[{{ $loop->index }}][qty]" value="{{ $item['qty'] }}">
             @endforeach
         </form>
 
-        <div class="bg-white rounded-2xl shadow p-8 mb-6 text-center">
-            {{-- Logo --}}
-            <div class="w-20 h-20 bg-[#6B0080] rounded-full flex items-center justify-center mx-auto mb-4">
-                <img src="{{ asset('img/logo.png') }}" class="h-12 w-12 object-contain filter brightness-0 invert">
-            </div>
-
-            <h3 class="text-[#6B0080] font-bold text-xl mb-2">Menunggu Pembayaran</h3>
-            <p class="text-sm text-gray-600 mb-1">Hampir Selesai!!</p>
-            <p class="text-sm text-gray-600 mb-6">Yuk Selesaikan Pembayaran Ticketmu<br>menggunakan Virtual Account di bawah ini</p>
-
-            {{-- Total --}}
-            <div class="bg-purple-50 rounded-xl p-4 mb-6">
-                <p class="text-sm font-semibold text-gray-700 mb-1">Total Pembayaran:</p>
-                <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalPrice, 0, ',', '.') }}</p>
-            </div>
-
-            {{-- VA Number --}}
-            <p class="text-[#6B0080] font-semibold text-sm mb-3 text-left">Transfer Ke Virtual Account</p>
-            <div class="flex items-center justify-between border-2 border-gray-200 rounded-xl px-4 py-3 mb-3">
-                <div class="flex items-center gap-3">
-                    <span id="va-bank-label" class="text-sm font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-lg">BCA</span>
-                    <span id="va-number-display" class="font-mono font-semibold text-gray-800 text-base tracking-wide">-</span>
+        {{-- Ringkasan ringkas di step 2 --}}
+        <div class="bg-white rounded-2xl shadow p-5 mb-5">
+            <div class="flex gap-3 items-center pb-4 border-b border-gray-100 mb-4">
+                @if($event->poster)
+                <img src="{{ asset('poster/' . $event->poster) }}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0">
+                @endif
+                <div>
+                    <p class="font-bold text-sm">{{ strtoupper($event->title) }}</p>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
+                        <svg class="w-3.5 h-3.5 text-[#9B30AF] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        {{ $event->event_date }}
+                    </div>
                 </div>
-                <button type="button" onclick="copyVA()" class="text-gray-400 hover:text-purple-600 transition" title="Salin">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                    </svg>
-                </button>
             </div>
-            <button type="button" onclick="copyVA()"
-                    class="w-full py-2.5 bg-purple-50 hover:bg-purple-100 text-[#6B0080] text-sm font-semibold rounded-xl transition mb-2">
-                Salin Nomor Virtual Account
-            </button>
-            <p id="copy-success" class="text-xs text-green-600 hidden">✓ Nomor disalin!</p>
+            @foreach($selectedTickets as $item)
+            <div class="flex justify-between items-center py-1.5">
+                <span class="text-sm text-gray-600">{{ $item['ticket']->name }} <span class="text-gray-400">x{{ $item['qty'] }}</span></span>
+                <span class="text-sm font-medium">Rp {{ number_format($item['ticket']->price * $item['qty'], 0, ',', '.') }}</span>
+            </div>
+            @endforeach
+            <div class="border-t border-gray-100 mt-3 pt-3 flex justify-between">
+                <span class="font-bold">Total</span>
+                <span class="font-bold text-[#6B0080]">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+            </div>
         </div>
 
-        <button type="button" onclick="submitAndFinish()"
-                class="w-full bg-[#6B0080] hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition">
-            Ringkasan Pemesanan
-        </button>
+        {{-- Tombol bayar --}}
+        <div class="bg-white rounded-2xl shadow p-6 text-center mb-4">
+            <div class="w-14 h-14 bg-[#6B0080]/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg class="w-7 h-7 text-[#6B0080] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+            </div>
+            <p class="text-sm text-gray-500 mb-1">Pilih metode pembayaran favoritmu</p>
+            <p class="text-xs text-gray-400 mb-5">Transfer Bank, QRIS, GoPay, OVO, dan lainnya</p>
+
+            <button id="pay-button" onclick="openMidtrans()"
+                    class="w-full bg-[#6B0080] hover:bg-[#580068] text-white font-bold py-3.5 rounded-xl
+                           transition shadow-lg shadow-purple-900/20 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Bayar Sekarang
+            </button>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+            <div class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div class="text-sm text-amber-700">
+                    <p class="font-semibold mb-0.5">Penting</p>
+                    <p>Selesaikan pembayaran sebelum waktu habis. Tiket akan dikirim ke email setelah pembayaran dikonfirmasi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ═══ STEP 3: RINGKASAN (fallback, biasanya redirect ke summary) ═══ --}}
+    <div id="page-3" class="hidden">
+        <div class="bg-white rounded-2xl shadow p-6 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h3 class="font-bold text-lg text-gray-900 mb-1">Pembayaran Berhasil!</h3>
+            <p class="text-sm text-gray-500 mb-4">Tiket akan dikirimkan ke email kamu.</p>
+            <a href="{{ route('home') }}"
+               class="inline-flex items-center gap-2 bg-[#6B0080] text-white font-semibold px-6 py-2.5 rounded-xl text-sm hover:bg-[#580068] transition">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Kembali ke Beranda
+            </a>
+        </div>
     </div>
 
 </div>
 
+{{-- Midtrans Snap JS --}}
+<script src="{{ config('midtrans.snap_url') }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+
 <script>
-// ─── DATA TIKET (untuk form hidden) ──────────────────────────────────────────
-const selectedTickets = @json(array_map(fn($i) => ['id' => $i['ticket']->id, 'qty' => $i['qty']], $selectedTickets));
-
-// ─── GENERATE VA DI SISI CLIENT (preview) ────────────────────────────────────
-const vaMap = {
-    bca:     { label: 'BCA',   prefix: '126' },
-    mandiri: { label: 'MDR',   prefix: '888' },
-    bni:     { label: 'BNI',   prefix: '988' },
-    bri:     { label: 'BRI',   prefix: '002' },
-    permata: { label: 'PMT',   prefix: '013' },
-};
-
-function generateVANumber(bank) {
-    const p = vaMap[bank]?.prefix || '000';
-    const r1 = String(Math.floor(Math.random()*9000)+1000);
-    const r2 = String(Math.floor(Math.random()*900000)+100000);
-    return p + ' ' + r1 + ' ' + r2;
-}
-
-// ─── VALIDASI STEP 1 → STEP 2 ────────────────────────────────────────────────
-function validateAndNext() {
+function validateAndGoToPayment() {
     const name  = document.getElementById('buyer-name').value.trim();
     const nim   = document.getElementById('buyer-nim').value.trim();
     const email = document.getElementById('buyer-email').value.trim();
     const phone = document.getElementById('buyer-phone').value.trim();
-    const payEl = document.querySelector('input[name="payment_opt"]:checked');
 
     if (!name || !nim || !email || !phone) {
         alert('Lengkapi semua data pembeli terlebih dahulu.');
         return;
     }
-    if (!payEl) {
-        alert('Pilih metode pembayaran terlebih dahulu.');
-        return;
-    }
 
-    // Isi form hidden
-    document.getElementById('f-name').value    = name;
-    document.getElementById('f-nim').value     = nim;
-    document.getElementById('f-email').value   = email;
-    document.getElementById('f-phone').value   = phone;
-    document.getElementById('f-payment').value = payEl.value;
+    document.getElementById('f-name').value  = name;
+    document.getElementById('f-nim').value   = nim;
+    document.getElementById('f-email').value = email;
+    document.getElementById('f-phone').value = phone;
 
-    // Tampilkan VA preview
-    const vaNum = generateVANumber(payEl.value);
-    document.getElementById('va-bank-label').textContent   = vaMap[payEl.value]?.label || payEl.value.toUpperCase();
-    document.getElementById('va-number-display').textContent = vaNum;
-
-    goToStep(2);
-}
-
-function copyVA() {
-    const va = document.getElementById('va-number-display').textContent;
-    navigator.clipboard.writeText(va).then(() => {
-        const el = document.getElementById('copy-success');
-        el.classList.remove('hidden');
-        setTimeout(() => el.classList.add('hidden'), 2000);
-    });
-}
-
-function submitAndFinish() {
     document.getElementById('process-form').submit();
 }
 
-// ─── STEP NAVIGATION ─────────────────────────────────────────────────────────
-function goToStep(step) {
-    [1, 2].forEach(s => {
-        document.getElementById('page-' + s).classList.add('hidden');
-        document.getElementById('step-dot-' + s).className =
-            'w-7 h-7 rounded-full step-inactive flex items-center justify-center text-xs font-bold';
-        document.getElementById('step-label-' + s).className =
-            'text-xs font-medium text-gray-400 hidden sm:block';
-    });
-    document.getElementById('page-' + step).classList.remove('hidden');
-    for (let s = 1; s <= step; s++) {
-        document.getElementById('step-dot-' + s).className =
-            'w-7 h-7 rounded-full step-done flex items-center justify-center text-xs font-bold';
-        document.getElementById('step-label-' + s).className =
-            'text-xs font-medium text-[#6B0080] hidden sm:block';
+function showKonfirmasiPembeli() {
+    const name  = document.getElementById('buyer-name').value.trim();
+    const nim   = document.getElementById('buyer-nim').value.trim();
+    const email = document.getElementById('buyer-email').value.trim();
+    const phone = document.getElementById('buyer-phone').value.trim();
+
+    if (!name || !nim || !email || !phone) {
+        alert('Lengkapi semua data pembeli terlebih dahulu.');
+        return;
     }
-    document.getElementById('step-line-12').className =
-        'w-12 h-0.5 ' + (step >= 2 ? 'step-line-active' : 'step-line-inactive');
+
+    SimetixConfirm.show({
+        title  : 'Konfirmasi Pembelian',
+        message: 'Tiket akan dikirim ke email berikut. Pastikan data sudah benar.',
+        detail : `Nama : ${name}\nEmail: ${email}\nPhone: ${phone}`,
+        confirm: 'Ya, Lanjutkan Bayar',
+        cancel : 'Periksa Lagi',
+        type   : 'info',
+        onConfirm: () => { validateAndGoToPayment(); }
+    });
+}
+
+function openMidtrans() {
+    const token = '{{ session("snap_token") }}';
+
+    if (!token) {
+        alert('Token pembayaran tidak tersedia. Silakan coba lagi.');
+        return;
+    }
+
+    const btn = document.getElementById('pay-button');
+    btn.disabled = true;
+    btn.innerHTML = `
+        <svg class="w-4 h-4 flex-shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Memuat...`;
+
+    snap.pay(token, {
+        onSuccess: function(result) {
+            window.location.href = '{{ route("checkout.summary", $event->slug) }}?transaction_status=' + result.transaction_status + '&order_id=' + result.order_id;
+        },
+        onPending: function(result) {
+            window.location.href = '{{ route("checkout.summary", $event->slug) }}?transaction_status=pending&order_id=' + result.order_id;
+        },
+        onError: function(result) {
+            alert('Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi.'));
+            btn.disabled = false;
+            btn.innerHTML = `
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Bayar Sekarang`;
+        },
+        onClose: function() {
+            btn.disabled = false;
+            btn.innerHTML = `
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Bayar Sekarang`;
+        }
+    });
+}
+
+function goToStep(step) {
+    [1, 2, 3].forEach(s => {
+        document.getElementById('page-' + s)?.classList.add('hidden');
+    });
+    document.getElementById('page-' + step)?.classList.remove('hidden');
+
+    [1, 2, 3].forEach(s => {
+        const dot   = document.getElementById('step-dot-' + s);
+        const label = document.getElementById('step-label-' + s);
+        if (!dot) return;
+        if (s <= step) {
+            dot.className   = 'w-7 h-7 rounded-full step-done flex items-center justify-center text-xs font-bold';
+            label.className = 'text-xs font-medium text-[#6B0080] hidden sm:block';
+        } else {
+            dot.className   = 'w-7 h-7 rounded-full step-inactive flex items-center justify-center text-xs font-bold';
+            label.className = 'text-xs font-medium text-gray-400 hidden sm:block';
+        }
+    });
+
+    ['12', '23'].forEach(pair => {
+        const line = document.getElementById('step-line-' + pair);
+        if (!line) return;
+        line.className = 'w-12 h-0.5 ' + (step > parseInt(pair[0]) ? 'step-line-active' : 'step-line-inactive');
+    });
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ─── TIMER ────────────────────────────────────────────────────────────────────
+@if(session('snap_token') && session('on_step') == 2)
+    document.addEventListener('DOMContentLoaded', function() {
+        goToStep(2);
+        setTimeout(openMidtrans, 500);
+    });
+@endif
+
 let seconds = 15 * 60;
 const timerEl = document.getElementById('timer');
 setInterval(() => {
@@ -311,6 +408,8 @@ setInterval(() => {
     timerEl.textContent = m + ' : ' + s;
 }, 1000);
 </script>
+
+<x-confirm-dialog />
 
 </body>
 </html>

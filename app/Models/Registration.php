@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Registration extends Model
 {
     protected $fillable = [
-        'event_id', 
+        'event_id',
         'ticket_type_id',
         'reg_number',
         'order_ref',
@@ -19,8 +19,6 @@ class Registration extends Model
         'phone',
         'quantity',
         'total_price',
-        'payment_method',
-        'virtual_account',
         'status',
     ];
 

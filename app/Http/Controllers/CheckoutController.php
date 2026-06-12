@@ -14,20 +14,17 @@ class CheckoutController extends Controller
 {
     public function __construct()
     {
-        // Konfigurasi Midtrans setiap kali controller dipakai
         Config::$serverKey    = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized  = true;
         Config::$is3ds        = true;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // STEP 1 — Terima pilihan tiket, tampilkan form checkout
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─── STEP 1: Tampilkan halaman checkout ──────────────────────────────────
 
     public function store(Request $request, Event $event)
     {
-        $tickets        = $request->input('tickets', []);
+        $tickets         = $request->input('tickets', []);
         $selectedTickets = [];
         $totalPrice      = 0;
 
@@ -39,10 +36,10 @@ class CheckoutController extends Controller
             if (! $ticket || $ticket->event_id !== $event->id) continue;
 
             $status = $ticket->getStatus();
-            if ($status === 'sold_out')   return back()->withErrors(['error' => "Tiket {$ticket->name} sudah habis."]);
-            if ($status === 'time_closed') return back()->withErrors(['error' => "Waktu pembelian tiket {$ticket->name} sudah berakhir."]);
-            if ($status === 'not_open')    return back()->withErrors(['error' => "Tiket {$ticket->name} belum atau sudah tidak tersedia."]);
-            if ($ticket->getRemainingQuota() < $qty) return back()->withErrors(['error' => "Kuota tiket {$ticket->name} tidak mencukupi (sisa: {$ticket->getRemainingQuota()})."]);
+            if ($status === 'sold_out')    return back()->withErrors(['error' => "Tiket {$ticket->name} sudah habis."]);
+            if ($status !== 'available')   return back()->withErrors(['error' => "Tiket {$ticket->name} tidak tersedia."]);
+            if ($ticket->getRemainingQuota() < $qty)
+                return back()->withErrors(['error' => "Kuota tiket {$ticket->name} tidak mencukupi (sisa: {$ticket->getRemainingQuota()})."]);
 
             $selectedTickets[] = ['ticket' => $ticket, 'qty' => $qty];
             $totalPrice += $ticket->price * $qty;
@@ -50,12 +47,13 @@ class CheckoutController extends Controller
 
         if (empty($selectedTickets)) return back()->withErrors(['error' => 'Pilih minimal 1 tiket.']);
 
+        // Bersihkan session lama
+        session()->forget(['snap_token', 'order_ref', 'on_step']);
+
         return view('checkout', compact('event', 'selectedTickets', 'totalPrice'));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // STEP 2 — Proses form → simpan ke DB → buat Midtrans Snap token
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─── STEP 2: Proses form, simpan ke DB, dapat snap token, kembali ke checkout ──
 
     public function process(Request $request, Event $event)
     {
@@ -65,12 +63,10 @@ class CheckoutController extends Controller
             'buyer_email'  => 'required|email',
             'buyer_phone'  => 'required|string|max:20',
             'tickets'      => 'required|array',
-            'tickets.*.id' => 'required|exists:ticket_types,id',
-            'tickets.*.qty'=> 'required|integer|min:1',
         ]);
 
-        $orderRef   = 'SIMETIX-' . strtoupper(Str::random(4)) . '-' . time();
-        $totalPrice = 0;
+        $orderRef    = 'SIMETIX-' . strtoupper(Str::random(4)) . '-' . time();
+        $totalPrice  = 0;
         $itemDetails = [];
 
         // ── Validasi kuota & hitung total ──────────────────────────────────
@@ -86,7 +82,6 @@ class CheckoutController extends Controller
             $subtotal     = $ticket->price * $qty;
             $totalPrice  += $subtotal;
 
-            // Format item untuk Midtrans
             $itemDetails[] = [
                 'id'       => (string) $ticket->id,
                 'price'    => (int) $ticket->price,
@@ -101,7 +96,6 @@ class CheckoutController extends Controller
             $ticket = TicketType::findOrFail($item['id']);
             $qty    = (int) $item['qty'];
 
-            // Kurangi kuota atomik
             if (! $ticket->decreaseQuota($qty)) {
                 return back()->withErrors(['error' => "Gagal memproses tiket {$ticket->name}, coba lagi."]);
             }
@@ -128,7 +122,7 @@ class CheckoutController extends Controller
                 'order_id'     => $orderRef,
                 'gross_amount' => (int) $totalPrice,
             ],
-            'item_details'  => $itemDetails,
+            'item_details'     => $itemDetails,
             'customer_details' => [
                 'first_name' => $request->buyer_name,
                 'email'      => $request->buyer_email,
@@ -142,82 +136,54 @@ class CheckoutController extends Controller
         try {
             $snapToken = Snap::getSnapToken($params);
         } catch (\Exception $e) {
-            // Kalau Midtrans error, tetap lanjut ke payment page
-            // dengan token null — fallback ke tampilan "menunggu"
             $snapToken = null;
             \Log::error('Midtrans error: ' . $e->getMessage());
         }
 
-        // Simpan data ke session untuk halaman payment & summary
+        // ── Simpan ke session, redirect kembali ke checkout di step 2 ──────
+
         session([
+            'snap_token'   => $snapToken,
             'order_ref'    => $orderRef,
             'total_price'  => $totalPrice,
-            'snap_token'   => $snapToken,
             'buyer_name'   => $request->buyer_name,
             'buyer_nim'    => $request->buyer_nim,
             'buyer_email'  => $request->buyer_email,
             'buyer_phone'  => $request->buyer_phone,
             'event_id'     => $event->id,
+            'on_step'      => 2,            // ← sinyal ke blade untuk skip ke step 2
         ]);
 
-        return redirect()->route('checkout.payment', $event->slug);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // STEP 3 — Halaman payment (tampilkan Snap popup)
-    // ─────────────────────────────────────────────────────────────────────────
-
-    public function payment(Event $event)
-    {
-        if (! session('order_ref')) {
-            return redirect()->route('event.show', $event->slug);
+        // Rebuild selectedTickets untuk view
+        $selectedTickets = [];
+        foreach ($request->tickets as $item) {
+            $ticket = TicketType::find($item['id']);
+            if ($ticket) $selectedTickets[] = ['ticket' => $ticket, 'qty' => (int) $item['qty']];
         }
 
-        $orderRef   = session('order_ref');
-        $snapToken  = session('snap_token');
-        $totalPrice = session('total_price');
-        $clientKey  = config('midtrans.client_key');
-        $snapUrl    = config('midtrans.snap_url');
-
-        $registrations = Registration::where('order_ref', $orderRef)
-            ->with('ticketType')
-            ->get();
-
-        return view('payment', compact(
-            'event', 'orderRef', 'snapToken',
-            'totalPrice', 'clientKey', 'snapUrl', 'registrations'
-        ));
+        // Kembali ke checkout.blade.php — blade akan auto-buka step 2 + Midtrans
+        return view('checkout', compact('event', 'selectedTickets', 'totalPrice'));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // STEP 4 — Ringkasan / Finish
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─── STEP 3: Summary / finish ────────────────────────────────────────────
 
     public function summary(Event $event)
     {
         $orderRef = session('order_ref') ?? request('order_id');
 
-        if (! $orderRef) {
-            return redirect()->route('event.show', $event->slug);
-        }
+        if (! $orderRef) return redirect()->route('event.show', $event->slug);
 
-        // Update status registrasi jika ada transaction_status dari Midtrans
         $transactionStatus = request('transaction_status');
         if ($transactionStatus) {
             $newStatus = match ($transactionStatus) {
                 'capture', 'settlement' => 'confirmed',
-                'pending'               => 'pending',
                 'cancel', 'expire'      => 'cancelled',
                 default                 => 'pending',
             };
-
-            Registration::where('order_ref', $orderRef)
-                ->update(['status' => $newStatus]);
+            Registration::where('order_ref', $orderRef)->update(['status' => $newStatus]);
         }
 
-        $registrations = Registration::where('order_ref', $orderRef)
-            ->with('ticketType')
-            ->get();
+        $registrations = Registration::where('order_ref', $orderRef)->with('ticketType')->get();
 
         $buyer = [
             'name'  => session('buyer_name')  ?? ($registrations->first()->name  ?? '-'),
@@ -228,50 +194,36 @@ class CheckoutController extends Controller
 
         $totalPrice = session('total_price') ?? $registrations->sum('total_price');
 
-        return view('summary', compact('event', 'registrations', 'buyer', 'orderRef', 'totalPrice'));
+        return view('summary', compact('event', 'registrations', 'buyer', 'orderRef', 'totalPrice'))->with('info', 'Pembelian berhasi, Silakan cek email kamu');
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // WEBHOOK — Midtrans notification (server-to-server)
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─── Webhook Midtrans ─────────────────────────────────────────────────────
 
     public function notification(Request $request)
     {
         try {
-            $notification = new \Midtrans\Notification();
-
-            $orderId           = $notification->order_id;
-            $transactionStatus = $notification->transaction_status;
-            $fraudStatus       = $notification->fraud_status ?? null;
+            $notification  = new \Midtrans\Notification();
+            $orderId       = $notification->order_id;
+            $txStatus      = $notification->transaction_status;
+            $fraudStatus   = $notification->fraud_status ?? null;
 
             $newStatus = 'pending';
-
-            if ($transactionStatus === 'capture') {
-                $newStatus = ($fraudStatus === 'challenge') ? 'pending' : 'confirmed';
-            } elseif ($transactionStatus === 'settlement') {
+            if ($txStatus === 'capture') {
+                $newStatus = $fraudStatus === 'challenge' ? 'pending' : 'confirmed';
+            } elseif ($txStatus === 'settlement') {
                 $newStatus = 'confirmed';
-            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+            } elseif (in_array($txStatus, ['cancel', 'deny', 'expire'])) {
                 $newStatus = 'cancelled';
-
-                // Kembalikan kuota jika dibatalkan
-                $registrations = Registration::where('order_ref', $orderId)
-                    ->with('ticketType')
-                    ->get();
-
-                foreach ($registrations as $reg) {
+                Registration::where('order_ref', $orderId)->with('ticketType')->each(function ($reg) {
                     if ($reg->ticketType) {
-                        \DB::table('ticket_types')
-                            ->where('id', $reg->ticket_type_id)
-                            ->decrement('sold', $reg->quantity);
+                        \DB::table('ticket_types')->where('id', $reg->ticket_type_id)->decrement('sold', $reg->quantity);
                     }
-                }
+                });
             }
 
-            Registration::where('order_ref', $orderId)
-                ->update(['status' => $newStatus]);
+            Registration::where('order_ref', $orderId)->update(['status' => $newStatus]);
 
             return response()->json(['status' => 'ok']);
-
         } catch (\Exception $e) {
             \Log::error('Midtrans notification error: ' . $e->getMessage());
             return response()->json(['status' => 'error'], 500);

@@ -15,6 +15,7 @@ use App\Http\Controllers\Panitia\EventController as PanitiaEventController;
 use App\Http\Controllers\Panitia\TicketTypeController;
 use App\Http\Controllers\Panitia\ParticipantController;
 use App\Http\Controllers\AboutUsController;
+use App\Http\Controllers\Panitia\TicketScanController;
 
 // ─── Public ───────────────────────────────────────────────────────────────────
 
@@ -114,6 +115,10 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
         return back()->with('success', 'Pengaturan notifikasi disimpan.');
     })->name('settings.notifications');
 
+    Route::post('/scan', [TicketScanController::class, 'scan'])->name('scan.store');
+    Route::get('/scan', [TicketScanController::class, 'index'])->name('scan.index');
+    Route::get('/scan/list', [TicketScanController::class, 'list'])->name('scan.list');
+
     // Events CRUD
     Route::get('/events', [PanitiaEventController::class, 'index'])->name('events.index');
     Route::get('/events/create', [PanitiaEventController::class, 'create'])->name('events.create');
@@ -127,3 +132,5 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
     Route::resource('/events/{event}/tickets', TicketTypeController::class)->names('tickets');
     Route::get('/events/{event}/participants', [ParticipantController::class, 'index'])->name('participants');
 });
+
+

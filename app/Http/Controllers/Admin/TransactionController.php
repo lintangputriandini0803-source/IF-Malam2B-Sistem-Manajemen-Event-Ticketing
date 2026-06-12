@@ -17,8 +17,8 @@ class TransactionController extends Controller
             $q = $request->search;
             $query->where(function ($q2) use ($q) {
                 $q2->where('name', 'like', "%{$q}%")
-                   ->orWhere('email', 'like', "%{$q}%")
-                   ->orWhere('reg_number', 'like', "%{$q}%");
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('reg_number', 'like', "%{$q}%");
             });
         }
 
@@ -55,12 +55,22 @@ class TransactionController extends Controller
         $events = \App\Models\Event::orderBy('title')->get();
 
         // Statistik ringkas
-        $totalRevenue   = Registration::where('status', 'confirmed')->sum('total_price');
-        $totalPending   = Registration::where('status', 'pending')->count();
-        $totalConfirmed = Registration::where('status', 'confirmed')->count();
+        $totalGMV = (int) Registration::where('status', 'confirmed')->sum('total_price');
+        $totalSuccess = Registration::where('status', 'confirmed')->count();
+        $totalPending = Registration::where('status', 'pending')->count();
+        $totalFailed = Registration::where('status', 'cancelled')->count();
+        $totalRevenue = $totalSuccess * 2000; // fee platform Rp2.000/tiket
+        $totalPayout = $totalGMV - $totalRevenue;
 
         return view('admin.transactions.index', compact(
-            'transactions', 'totalRevenue', 'totalPending', 'totalConfirmed'
+            'transactions',
+            'events',
+            'totalGMV',
+            'totalSuccess',
+            'totalPending',
+            'totalFailed',
+            'totalRevenue',
+            'totalPayout'
         ));
     }
 
@@ -84,8 +94,8 @@ class TransactionController extends Controller
             $q = $request->search;
             $query->where(function ($q2) use ($q) {
                 $q2->where('name', 'like', "%{$q}%")
-                   ->orWhere('email', 'like', "%{$q}%")
-                   ->orWhere('reg_number', 'like', "%{$q}%");
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('reg_number', 'like', "%{$q}%");
             });
         }
 
@@ -93,7 +103,7 @@ class TransactionController extends Controller
 
         $filename = 'transaksi-' . now()->format('Ymd-His') . '.csv';
         $headers = [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 

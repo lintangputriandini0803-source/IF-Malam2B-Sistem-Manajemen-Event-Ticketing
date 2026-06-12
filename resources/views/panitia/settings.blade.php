@@ -60,7 +60,7 @@
                 <div style="margin-bottom:20px">
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Nomor HP</label>
                     <input type="text" name="phone" value="{{ old('phone', auth()->user()->phone ?? '') }}"
-                           placeholder="+62..."
+                           placeholder=""
                            style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
                            onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
                 </div>
