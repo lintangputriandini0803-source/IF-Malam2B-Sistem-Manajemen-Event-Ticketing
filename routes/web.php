@@ -92,6 +92,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
 Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Panitia\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/events/create', [App\Http\Controllers\EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [App\Http\Controllers\EventController::class, 'store'])->name('panitia.events.store');
 
     // Settings
     Route::get('/settings', function () {

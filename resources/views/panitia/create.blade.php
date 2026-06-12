@@ -19,6 +19,19 @@
         @csrf
         @if(isset($event)) @method('PUT') @endif
 
+        @if ($errors->any())
+        <div style="background:#fee2e2; color:#b91c1c; padding:15px; border-radius:10px; margin-bottom:20px;">
+            <strong>Oops! Ada yang salah:</strong>
+            <ul style="margin-top:5px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    {{-- SELESAI --}}
+
+
         {{-- SECTION 1: INFO DASAR --}}
         <div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
             <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
@@ -54,14 +67,15 @@
                         Kategori <span style="color:#dc2626">*</span>
                     </label>
                     <div style="position:relative">
-                        <select name="category" required
+                        <select name="category_id" required
                                 style="width:100%;padding:11px 36px 11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;appearance:none;background:white;cursor:pointer;box-sizing:border-box">
                             <option value="">Pilih kategori...</option>
-                            @foreach(['seminar'=>'📚 Seminar','workshop'=>'🛠 Workshop','konser'=>'🎵 Konser','kompetisi'=>'🏆 Kompetisi','pameran'=>'🎨 Pameran','olahraga'=>'⚽ Olahraga','hiburan'=>'🎭 Hiburan','lainnya'=>'📌 Lainnya'] as $val=>$label)
-                            <option value="{{ $val }}" {{ old('category', $event->category ?? '') === $val ? 'selected' : '' }}>
-                                {{ $label }}
-                            </option>
-                            @endforeach
+                            @foreach(\App\Models\EventCategory::all() as $cat)
+                                <option value="{{ $cat->id }}" 
+                                    {{ old('category_id', $event->category_id ?? '') == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->name }}
+                                </option>
+                                 @endforeach
                         </select>
                         <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af;pointer-events:none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -98,7 +112,7 @@
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
                         Tanggal Mulai <span style="color:#dc2626">*</span>
                     </label>
-                    <input type="date" name="date" value="{{ old('date', isset($event->date) ? \Carbon\Carbon::parse($event->date)->format('Y-m-d') : '') }}"
+                    <input type="date" name="event_date" value="{{ old('date', isset($event->date) ? \Carbon\Carbon::parse($event->date)->format('Y-m-d') : '') }}"
                            required
                            style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box">
                 </div>
@@ -133,7 +147,7 @@
             $tikets = old('tikets', $event->tikets ?? [
                 ['nama' => '', 'price' => '', 'quota' => '']
             ]);
-            if (is_string($tikets)) $tikets = json_decode($tikets, true) ?? [];
+            if (is_string($tikets)) $tiket = json_decode($tikets, true) ?? [];
         @endphp
 
         @foreach($tikets as $i => $tiket)
