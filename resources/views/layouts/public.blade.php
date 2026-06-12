@@ -411,7 +411,7 @@
         <div class="hidden md:flex items-center gap-7">
             <a href="{{ route('homepage') }}" class="nav-link {{ request()->routeIs('homepage') ? 'active' : '' }}">Event</a>
             <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">About Us</a>
-            <a href="{{ route('blog') }}" class="nav-link {{ request()->routeIs('blog') ? 'active' : '' }}">blog</a>
+            <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">Blog</a>
 
         </div>
         <div>
@@ -431,6 +431,7 @@
 <div class="mobile-menu" id="mobile-menu">
     <a href="{{ route('homepage') }}" onclick="closeMobileMenu()">Event</a>
     <a href="{{ route('about') }}" onclick="closeMobileMenu()">About Us</a>
+    <a href="{{ route('about') }}" onclick="closeMobileMenu()">Blog</a>
     <button onclick="openLoginModal(); closeMobileMenu()" class="mobile-login-btn">Login</button>
 </div>
 
