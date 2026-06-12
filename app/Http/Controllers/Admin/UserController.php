@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request) // menampilkan data
     {
         $query = User::query();
 
@@ -30,7 +30,7 @@ class UserController extends Controller
         return view('admin.index', compact('users'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request) //tambah
     {
         $request->validate([
             'name'         => 'required|string|max:255',
@@ -53,7 +53,7 @@ class UserController extends Controller
         return back()->with('success', "Pengguna {$request->name} berhasil ditambahkan.");
     }
 
-    public function approve(User $user)
+    public function approve(User $user)//edit
     {
         $user->update(['status' => 'approved']);
         return back()->with('success', "Akun {$user->name} berhasil disetujui.");
