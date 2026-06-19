@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Panitia;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Registration; 
+use App\Exports\PesertaExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ParticipantController extends Controller
 {
@@ -44,5 +46,10 @@ class ParticipantController extends Controller
         $peserta = $query->latest()->paginate(10)->withQueryString();
 
         return view('panitia.report_peserta', compact('peserta', 'events'));
+    }
+
+    public function exportExcel() 
+    {
+        return Excel::download(new PesertaExport, 'report_peserta.xlsx');
     }
 }

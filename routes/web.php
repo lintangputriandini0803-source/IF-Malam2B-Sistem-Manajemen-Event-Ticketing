@@ -104,7 +104,7 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
     // Report Peserta
     Route::get('/report-peserta', [ParticipantController::class, 'report'])->name('report_peserta');
 
-    Route::get('/export-excel', [ParticipantController::class, 'exportExcel'])->name('export-excel');
+    Route::get('/report-peserta/export', [ParticipantController::class, 'exportExcel'])->name('report.excel');
     Route::post('/settings/update', function () {
         return back()->with('success', 'Profil berhasil diperbarui.');
     })->name('settings.update');

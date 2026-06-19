@@ -39,7 +39,7 @@
 
             <button type="submit" class="bg-gray-800 text-white px-6 py-2 rounded-lg text-sm hover:bg-black transition-colors">Terapkan</button>
 
-            <a href="{{ route('panitia.export-excel', request()->all()) }}" 
+            <a href="{{ route('panitia.report.excel', request()->all()) }}" 
                class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition-all text-sm font-medium">
                 📥 Ekspor Excel
             </a>
