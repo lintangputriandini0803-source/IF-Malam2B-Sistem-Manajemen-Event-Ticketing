@@ -5,10 +5,12 @@
 @section('content')
 
     {{-- BANNER CAROUSEL --}}
-    <div class="relative h-64 md:h-[440px] mb-8 carousel-wrap" id="carousel">
-        <div class="carousel-overlay"></div>
+    <div class="relative h-64 md:h-[480px] mb-5 carousel-wrap border-b-3 border-b-[#6B0080]" id="carousel">
 
         <div class="carousel-slides flex transition-transform duration-500 ease-in-out h-full" id="carousel-slides">
+            <div class="carousel-slide min-w-full h-full flex-shrink-0">
+                <img src="{{ asset('poster/image8.png') }}" class="w-full h-full object-cover">
+            </div>
             <div class="carousel-slide min-w-full h-full flex-shrink-0">
                 <img src="{{ asset('poster/image4.png') }}" class="w-full h-full object-cover">
             </div>

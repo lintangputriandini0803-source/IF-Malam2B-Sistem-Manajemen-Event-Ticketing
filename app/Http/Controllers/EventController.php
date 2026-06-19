@@ -83,15 +83,13 @@ class EventController extends Controller
     {
         // Ambil semua kategori dari tabel event_categories
         $categories = EventCategory::orderBy('name')->get();
-        
+
         // Kirim $categories ke view 'panitia.events.create'
         return view('panitia.events.create', compact('categories'));
     }
-    
+
     public function store(Request $request)
     {
-        dd($request->all());
-
         $request->validate([
             'title'         => 'required|string|max:255',
             'description'   => 'required',
@@ -109,12 +107,12 @@ class EventController extends Controller
             'slug'          => Str::slug($request->title),
             'description'   => $request->description,
             'category_id'   => $request->category_id,
-            'user_id'       => Auth::id(), 
+            'user_id'       => Auth::id(),
             'event_date'    => $request->event_date,
             'event_time'    => $request->event_time,
             'location'      => $request->location,
             'poster'        => $path,
-            'status'        => 'published', 
+            'status'        => 'published',
         ]);
 
         return redirect()->back()->with('success', 'Event berhasil dibuat!');

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TicketPurchasedMail;
 use App\Models\Event;
 use App\Models\Registration;
 use App\Models\TicketType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -183,7 +185,7 @@ class CheckoutController extends Controller
             Registration::where('order_ref', $orderRef)->update(['status' => $newStatus]);
         }
 
-        $registrations = Registration::where('order_ref', $orderRef)->with('ticketType')->get();
+        $registrations = Registration::where('order_ref', $orderRef)->with(['ticketType', 'event'])->get();
 
         $buyer = [
             'name'  => session('buyer_name')  ?? ($registrations->first()->name  ?? '-'),
@@ -193,6 +195,12 @@ class CheckoutController extends Controller
         ];
 
         $totalPrice = session('total_price') ?? $registrations->sum('total_price');
+
+        // Kirim email tiket jika status sudah confirmed dan belum pernah dikirim.
+        // (Dijaga oleh kolom email_sent_at agar tidak dobel dengan trigger dari webhook notification().)
+        if ($registrations->isNotEmpty() && $registrations->first()->status === 'confirmed') {
+            $this->sendTicketEmailIfNeeded($registrations, $orderRef, $buyer, (float) $totalPrice);
+        }
 
         return view('summary', compact('event', 'registrations', 'buyer', 'orderRef', 'totalPrice'))->with('info', 'Pembelian berhasi, Silakan cek email kamu');
     }
@@ -223,10 +231,52 @@ class CheckoutController extends Controller
 
             Registration::where('order_ref', $orderId)->update(['status' => $newStatus]);
 
+            if ($newStatus === 'confirmed') {
+                $registrations = Registration::where('order_ref', $orderId)->with(['ticketType', 'event'])->get();
+
+                if ($registrations->isNotEmpty()) {
+                    $first = $registrations->first();
+                    $buyer = [
+                        'name'  => $first->name,
+                        'nim'   => $first->nim,
+                        'email' => $first->email,
+                        'phone' => $first->phone,
+                    ];
+                    $totalPrice = (float) $registrations->sum('total_price');
+
+                    $this->sendTicketEmailIfNeeded($registrations, $orderId, $buyer, $totalPrice);
+                }
+            }
+
             return response()->json(['status' => 'ok']);
         } catch (\Exception $e) {
             \Log::error('Midtrans notification error: ' . $e->getMessage());
             return response()->json(['status' => 'error'], 500);
+        }
+    }
+
+    // ─── Kirim email tiket (PDF + ucapan terima kasih), dijaga anti-dobel ─────
+
+    private function sendTicketEmailIfNeeded($registrations, string $orderRef, array $buyer, float $totalPrice): void
+    {
+        $alreadySent = $registrations->first()->email_sent_at !== null;
+        if ($alreadySent) {
+            return;
+        }
+
+        if (empty($buyer['email'])) {
+            \Log::warning("Tidak bisa kirim email tiket untuk order {$orderRef}: email pembeli kosong.");
+            return;
+        }
+
+        try {
+            Mail::to($buyer['email'])->send(
+                new TicketPurchasedMail($orderRef, $registrations, $buyer, $totalPrice)
+            );
+
+            Registration::where('order_ref', $orderRef)->update(['email_sent_at' => now()]);
+        } catch (\Exception $e) {
+            \Log::error("Gagal mengirim email tiket untuk order {$orderRef}: " . $e->getMessage());
         }
     }
 }

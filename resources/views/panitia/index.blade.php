@@ -117,30 +117,45 @@
         </div>
 
         {{-- INFO --}}
+        @php
+            $totalQuota   = $event->ticketTypes->sum('quota');
+            $totalSold    = $event->ticketTypes->sum('sold');
+            $minPrice     = $event->ticketTypes->min('price');
+            $displayDate  = $event->getFormattedDateRange();
+        @endphp
         <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                 <p style="font-size:14px;font-weight:700;color:#111">{{ $event->title }}</p>
                 @if($event->category)
                 <span style="font-size:10px;padding:2px 8px;background:#f0f0f5;color:#6b7280;border-radius:4px;font-weight:600">
-                    {{ $event->category->name ?? $event->category }}
+                    {{ $event->category->name }}
+                </span>
+                @endif
+                @if($event->isExpired())
+                <span style="font-size:9px;padding:2px 7px;background:#fee2e2;color:#dc2626;border-radius:4px;font-weight:700;text-transform:uppercase">
+                    Berakhir
                 </span>
                 @endif
             </div>
             <p style="font-size:12px;color:#9ca3af;margin-top:3px">
-                <p style="font-size:12px;color:#9ca3af;margin-top:3px">
-            {{ $event->event_date ?? '-' }}
-                &nbsp;&nbsp;
-                {{ $event->location ?? '-' }}
+                📅 {{ $displayDate }}
                 &nbsp;·&nbsp;
-                {{ $event->tickets_sold ?? 0 }}/{{ $event->quota ?? 0 }} tiket
+                📍 {{ $event->location ?? '-' }}
+                &nbsp;·&nbsp;
+                🎫 {{ $totalSold }}/{{ $totalQuota }} tiket terjual
             </p>
         </div>
 
         {{-- HARGA --}}
         <div style="text-align:right;flex-shrink:0">
-            <p style="font-size:14px;font-weight:800;color:#6B0080">
-                {{ $event->price > 0 ? 'Rp'.number_format($event->price,0,',','.') : 'GRATIS' }}
-            </p>
+            @if($event->ticketTypes->isEmpty())
+                <p style="font-size:12px;color:#9ca3af">Belum ada tiket</p>
+            @elseif($minPrice == 0)
+                <p style="font-size:14px;font-weight:800;color:#16a34a">GRATIS</p>
+            @else
+                <p style="font-size:13px;color:#9ca3af;font-size:10px">Mulai dari</p>
+                <p style="font-size:14px;font-weight:800;color:#6B0080">Rp {{ number_format($minPrice,0,',','.') }}</p>
+            @endif
         </div>
 
         {{-- ACTIONS --}}

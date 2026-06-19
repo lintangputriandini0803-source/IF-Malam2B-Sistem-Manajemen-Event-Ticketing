@@ -23,7 +23,8 @@ class Registration extends Model
     ];
 
     protected $casts = [
-        'total_price' => 'decimal:2',
+        'total_price'    => 'decimal:2',
+        'email_sent_at'  => 'datetime',
     ];
 
     protected static function boot()
