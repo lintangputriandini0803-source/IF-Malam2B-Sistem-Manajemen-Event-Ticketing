@@ -102,12 +102,8 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
 
     // Report Peserta
     Route::get('/report-peserta', [ParticipantController::class, 'report'])->name('report_peserta');
-<<<<<<< Updated upstream
-
+    Route::get('/report-peserta', [ParticipantController::class, 'report'])->name('report_peserta');
     Route::get('/report-peserta/export', [ParticipantController::class, 'exportExcel'])->name('report.excel');
-=======
-    Route::get('/export-excel', [ParticipantController::class, 'exportExcel'])->name('export-excel');
->>>>>>> Stashed changes
     Route::post('/settings/update', function () {
         return back()->with('success', 'Profil berhasil diperbarui.');
     })->name('settings.update');
