@@ -414,7 +414,7 @@
             <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">Blog</a>
 
         </div>
-        <div>
+        <div class="hidden md:flex items-center gap-7">
             <button onclick="openLoginModal()" class="btn-login">Login</button>
 
         </div>

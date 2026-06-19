@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Panitia;
 use App\Models\Registration;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
-use App\Models\Ticket;
 use App\Models\TicketScan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

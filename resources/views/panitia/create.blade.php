@@ -20,17 +20,15 @@
         @if(isset($event)) @method('PUT') @endif
 
         @if ($errors->any())
-        <div style="background:#fee2e2; color:#b91c1c; padding:15px; border-radius:10px; margin-bottom:20px;">
+        <div style="background:#fee2e2;color:#b91c1c;padding:15px;border-radius:10px;margin-bottom:20px">
             <strong>Oops! Ada yang salah:</strong>
-            <ul style="margin-top:5px;">
+            <ul style="margin-top:5px">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
-    @endif
-    {{-- SELESAI --}}
-
+        @endif
 
         {{-- SECTION 1: INFO DASAR --}}
         <div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
@@ -38,6 +36,7 @@
                 📋 Informasi Dasar
             </h2>
 
+            {{-- Nama Event --}}
             <div style="margin-bottom:16px">
                 <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
                     Nama Event <span style="color:#dc2626">*</span>
@@ -51,6 +50,7 @@
                 @enderror
             </div>
 
+            {{-- Deskripsi --}}
             <div style="margin-bottom:16px">
                 <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
                     Deskripsi
@@ -61,6 +61,7 @@
                           onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">{{ old('description', $event->description ?? '') }}</textarea>
             </div>
 
+            {{-- Kategori & Status --}}
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
@@ -71,11 +72,11 @@
                                 style="width:100%;padding:11px 36px 11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;appearance:none;background:white;cursor:pointer;box-sizing:border-box">
                             <option value="">Pilih kategori...</option>
                             @foreach(\App\Models\EventCategory::all() as $cat)
-                                <option value="{{ $cat->id }}" 
+                                <option value="{{ $cat->id }}"
                                     {{ old('category_id', $event->category_id ?? '') == $cat->id ? 'selected' : '' }}>
                                     {{ $cat->name }}
                                 </option>
-                                 @endforeach
+                            @endforeach
                         </select>
                         <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af;pointer-events:none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -89,9 +90,9 @@
                     <div style="position:relative">
                         <select name="status"
                                 style="width:100%;padding:11px 36px 11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;appearance:none;background:white;cursor:pointer;box-sizing:border-box">
-                            <option value="draft" {{ old('status', $event->status ?? 'draft') === 'draft' ? 'selected' : '' }}>Draft</option>
-                            <option value="published" {{ old('status', $event->status ?? '') === 'published' ? 'selected' : '' }}>Published</option>
-                            <option value="cancelled" {{ old('status', $event->status ?? '') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            <option value="draft"      {{ old('status', $event->status ?? 'draft') === 'draft'      ? 'selected' : '' }}>Draft</option>
+                            <option value="published"  {{ old('status', $event->status ?? '')      === 'published'  ? 'selected' : '' }}>Published</option>
+                            <option value="cancelled"  {{ old('status', $event->status ?? '')      === 'cancelled'  ? 'selected' : '' }}>Cancelled</option>
                         </select>
                         <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af;pointer-events:none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -108,23 +109,30 @@
             </h2>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+                {{-- Tanggal Mulai --}}
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
                         Tanggal Mulai <span style="color:#dc2626">*</span>
                     </label>
-                    <input type="date" name="event_date" value="{{ old('date', isset($event->date) ? \Carbon\Carbon::parse($event->date)->format('Y-m-d') : '') }}"
+                    <input type="date" name="event_date"
+                           value="{{ old('event_date', $event->event_date ?? '') }}"
                            required
-                           style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box">
+                           style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                           onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
                 </div>
+                {{-- Tanggal Selesai --}}
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
                         Tanggal Selesai
                     </label>
-                    <input type="date" name="end_date" value="{{ old('end_date', isset($event->end_date) ? \Carbon\Carbon::parse($event->end_date)->format('Y-m-d') : '') }}"
-                           style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box">
+                    <input type="date" name="end_date"
+                           value="{{ old('end_date', $event->end_date ?? '') }}"
+                           style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                           onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
                 </div>
             </div>
 
+            {{-- Lokasi --}}
             <div style="margin-bottom:16px">
                 <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
                     Lokasi <span style="color:#dc2626">*</span>
@@ -136,163 +144,184 @@
             </div>
         </div>
 
-       {{-- SECTION 3: TIKET --}}
-<div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
-    <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
-        🎫 Tiket
-    </h2>
+        {{-- SECTION 3: TIKET --}}
+        <div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
+            <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
+                🎫 Tiket
+            </h2>
 
-    <div id="tiket-list">
-        @php
-            $tikets = old('tikets', $event->tikets ?? [
-                ['nama' => '', 'price' => '', 'quota' => '']
-            ]);
-            if (is_string($tikets)) $tiket = json_decode($tikets, true) ?? [];
-        @endphp
+            <div id="tiket-list">
+                @php
+                    $existingTickets = isset($event) ? $event->ticketTypes->toArray() : [];
+                    $tikets = old('tikets', count($existingTickets) > 0
+                        ? array_map(fn($t) => [
+                            'id'    => $t['id'],
+                            'nama'  => $t['name'],
+                            'price' => $t['price'],
+                            'quota' => $t['quota'],
+                            'sold'  => $t['sold'] ?? 0,
+                          ], $existingTickets)
+                        : [['id' => '', 'nama' => '', 'price' => '', 'quota' => '', 'sold' => 0]]
+                    );
+                @endphp
 
-        @foreach($tikets as $i => $tiket)
-        <div class="tiket-item" style="border:1.5px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;position:relative">
+                @foreach($tikets as $i => $tiket)
+                @php $sold = (int)($tiket['sold'] ?? 0); $quota = (int)($tiket['quota'] ?? 0); @endphp
+                <div class="tiket-item" style="border:1.5px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;position:relative">
 
-            {{-- Tombol hapus --}}
-            @if($loop->index > 0)
-            <button type="button" onclick="hapusTiket(this)"
-                    style="position:absolute;top:12px;right:12px;background:#fee2e2;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#ef4444;cursor:pointer;font-weight:600">
-                ✕ Hapus
+                    {{-- Hidden ID tiket yang sudah ada di DB --}}
+                    <input type="hidden" name="tikets[{{ $i }}][id]" value="{{ $tiket['id'] ?? '' }}">
+
+                    {{-- Tombol hapus (tidak boleh hapus tiket pertama) --}}
+                    @if($loop->index > 0)
+                    <button type="button" onclick="hapusTiket(this)"
+                            style="position:absolute;top:12px;right:12px;background:#fee2e2;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#ef4444;cursor:pointer;font-weight:600">
+                        ✕ Hapus
+                    </button>
+                    @endif
+
+                    {{-- Label tiket + info terjual --}}
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                        <span style="font-size:12px;font-weight:700;color:#6B0080;text-transform:uppercase;letter-spacing:.05em">
+                            Tiket {{ $loop->iteration }}
+                        </span>
+                        @if($sold > 0)
+                        <span style="font-size:11px;color:#9ca3af;background:#f3f4f6;padding:2px 8px;border-radius:20px">
+                            {{ $sold }} terjual · sisa {{ $quota - $sold }}
+                        </span>
+                        @endif
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                        {{-- Nama Tiket --}}
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
+                                Nama Tiket
+                            </label>
+                            <input type="text" name="tikets[{{ $i }}][nama]"
+                                   value="{{ $tiket['nama'] ?? '' }}"
+                                   placeholder="cth: Regular, VIP..."
+                                   style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                                   onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+                        </div>
+                        {{-- Harga --}}
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
+                                Harga (Rp)
+                            </label>
+                            <input type="number" name="tikets[{{ $i }}][price]"
+                                   value="{{ $tiket['price'] ?? 0 }}"
+                                   min="0" placeholder="0 = Gratis"
+                                   style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                                   onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+                        </div>
+                        {{-- Kuota — min disesuaikan sold --}}
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
+                                Kuota
+                                @if($sold > 0)
+                                <span style="font-weight:400;color:#9ca3af;font-size:10px">(min. {{ $sold }})</span>
+                                @endif
+                            </label>
+                            <input type="number" name="tikets[{{ $i }}][quota]"
+                                   value="{{ $tiket['quota'] ?? '' }}"
+                                   min="{{ max(1, $sold) }}" placeholder="Jumlah peserta"
+                                   style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                                   onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            {{-- Tombol Tambah Tiket --}}
+            <button type="button" id="btn-tambah-tiket" onclick="tambahTiket()"
+                    style="display:flex;align-items:center;gap:8px;padding:10px 18px;border:1.5px dashed #6B0080;border-radius:10px;background:transparent;color:#6B0080;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px">
+                + Tambah Jenis Tiket
             </button>
-            @endif
-
-            <div style="font-size:12px;font-weight:700;color:#6B0080;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">
-                Tiket {{ $loop->iteration }}
-            </div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-                <div>
-                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
-                        Nama Tiket
-                    </label>
-                    <input type="text" name="tikets[{{ $i }}][nama]"
-                           value="{{ $tiket['nama'] ?? '' }}"
-                           placeholder="cth: Regular, VIP..."
-                           style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
-                           onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
-                </div>
-                <div>
-                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
-                        Harga (Rp)
-                    </label>
-                    <input type="number" name="tikets[{{ $i }}][price]"
-                           value="{{ $tiket['price'] ?? 0 }}"
-                           min="0" placeholder="0 = Gratis"
-                           style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
-                           onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
-                </div>
-                <div>
-                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
-                        Kuota
-                    </label>
-                    <input type="number" name="tikets[{{ $i }}][quota]"
-                           value="{{ $tiket['quota'] ?? '' }}"
-                           min="1" placeholder="Jumlah peserta"
-                           style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
-                           onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
-                </div>
-            </div>
+            <p id="tiket-max-msg" style="display:none;font-size:11px;color:#9ca3af;margin-top:6px">
+                Maksimal 3 jenis tiket.
+            </p>
         </div>
-        @endforeach
-    </div>
 
-    {{-- Tombol Tambah Tiket --}}
-    <button type="button" id="btn-tambah-tiket" onclick="tambahTiket()"
-            style="display:flex;align-items:center;gap:8px;padding:10px 18px;border:1.5px dashed #6B0080;border-radius:10px;background:transparent;color:#6B0080;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px">
-        + Tambah Jenis Tiket
-    </button>
-    <p id="tiket-max-msg" style="display:none;font-size:11px;color:#9ca3af;margin-top:6px">
-        Maksimal 3 jenis tiket.
-    </p>
-</div>
+        <script>
+        const MAX_TIKET = 3;
 
-<script>
-const MAX_TIKET = 3;
+        function getTiketCount() {
+            return document.querySelectorAll('.tiket-item').length;
+        }
 
-function getTiketCount() {
-    return document.querySelectorAll('.tiket-item').length;
-}
+        function updateTambahBtn() {
+            const btn = document.getElementById('btn-tambah-tiket');
+            const msg = document.getElementById('tiket-max-msg');
+            if (getTiketCount() >= MAX_TIKET) {
+                btn.style.display = 'none';
+                msg.style.display = 'block';
+            } else {
+                btn.style.display = 'flex';
+                msg.style.display = 'none';
+            }
+        }
 
-function updateTambahBtn() {
-    const btn = document.getElementById('btn-tambah-tiket');
-    const msg = document.getElementById('tiket-max-msg');
-    if (getTiketCount() >= MAX_TIKET) {
-        btn.style.display = 'none';
-        msg.style.display = 'block';
-    } else {
-        btn.style.display = 'flex';
-        msg.style.display = 'none';
-    }
-}
+        function tambahTiket() {
+            if (getTiketCount() >= MAX_TIKET) return;
+            const index = getTiketCount();
+            const wrapper = document.getElementById('tiket-list');
+            const div = document.createElement('div');
+            div.className = 'tiket-item';
+            div.style.cssText = 'border:1.5px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;position:relative';
+            div.innerHTML = `
+                <input type="hidden" name="tikets[${index}][id]" value="">
+                <button type="button" onclick="hapusTiket(this)"
+                        style="position:absolute;top:12px;right:12px;background:#fee2e2;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#ef4444;cursor:pointer;font-weight:600">
+                    ✕ Hapus
+                </button>
+                <div style="font-size:12px;font-weight:700;color:#6B0080;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">
+                    Tiket ${index + 1}
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Nama Tiket</label>
+                        <input type="text" name="tikets[${index}][nama]" placeholder="cth: Regular, VIP..."
+                               style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                               onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Harga (Rp)</label>
+                        <input type="number" name="tikets[${index}][price]" value="0" min="0" placeholder="0 = Gratis"
+                               style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                               onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Kuota</label>
+                        <input type="number" name="tikets[${index}][quota]" min="1" placeholder="Jumlah peserta"
+                               style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
+                               onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
+                    </div>
+                </div>
+            `;
+            wrapper.appendChild(div);
+            updateTambahBtn();
+        }
 
-function tambahTiket() {
-    if (getTiketCount() >= MAX_TIKET) return;
+        function hapusTiket(btn) {
+            btn.closest('.tiket-item').remove();
+            reindexTikets();
+            updateTambahBtn();
+        }
 
-    const index = getTiketCount();
-    const wrapper = document.getElementById('tiket-list');
+        function reindexTikets() {
+            document.querySelectorAll('.tiket-item').forEach((item, i) => {
+                item.querySelectorAll('input').forEach(input => {
+                    input.name = input.name.replace(/tikets\[\d+\]/, `tikets[${i}]`);
+                });
+                const label = item.querySelector('div[style*="color:#6B0080"]');
+                if (label) label.textContent = `Tiket ${i + 1}`;
+            });
+        }
 
-    const div = document.createElement('div');
-    div.className = 'tiket-item';
-    div.style.cssText = 'border:1.5px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;position:relative';
-
-    div.innerHTML = `
-        <button type="button" onclick="hapusTiket(this)"
-                style="position:absolute;top:12px;right:12px;background:#fee2e2;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#ef4444;cursor:pointer;font-weight:600">
-            ✕ Hapus
-        </button>
-        <div style="font-size:12px;font-weight:700;color:#6B0080;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">
-            Tiket ${index + 1}
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-            <div>
-                <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Nama Tiket</label>
-                <input type="text" name="tikets[${index}][nama]" placeholder="cth: Regular, VIP..."
-                       style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
-                       onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
-            </div>
-            <div>
-                <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Harga (Rp)</label>
-                <input type="number" name="tikets[${index}][price]" value="0" min="0" placeholder="0 = Gratis"
-                       style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
-                       onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
-            </div>
-            <div>
-                <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Kuota</label>
-                <input type="number" name="tikets[${index}][quota]" min="1" placeholder="Jumlah peserta"
-                       style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;box-sizing:border-box"
-                       onfocus="this.style.borderColor='#6B0080'" onblur="this.style.borderColor='#e5e7eb'">
-            </div>
-        </div>
-    `;
-
-    wrapper.appendChild(div);
-    updateTambahBtn();
-}
-
-function hapusTiket(btn) {
-    btn.closest('.tiket-item').remove();
-    reindexTikets();
-    updateTambahBtn();
-}
-
-function reindexTikets() {
-    document.querySelectorAll('.tiket-item').forEach((item, i) => {
-        item.querySelectorAll('input').forEach(input => {
-            input.name = input.name.replace(/tikets\[\d+\]/, `tikets[${i}]`);
-        });
-        const label = item.querySelector('div[style*="color:#6B0080"]');
-        if (label) label.textContent = `Tiket ${i + 1}`;
-    });
-}
-
-// Cek saat halaman load (untuk edit mode)
-updateTambahBtn();
-</script>
+        updateTambahBtn();
+        </script>
 
         {{-- SECTION 4: POSTER --}}
         <div style="background:white;border-radius:14px;padding:24px;margin-bottom:20px">
@@ -313,7 +342,7 @@ updateTambahBtn();
                  style="border:2px dashed #d1d5db;border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .15s"
                  onmouseover="this.style.borderColor='#6B0080';this.style.background='#fdf9ff'"
                  onmouseout="this.style.borderColor='#d1d5db';this.style.background='transparent'">
-                <input type="file" id="poster-input" name="poster" accept="image/*" class="hidden"
+                <input type="file" id="poster-input" name="poster" accept="image/*" style="display:none"
                        onchange="previewPoster(this)">
                 <div id="upload-placeholder">
                     <svg style="width:32px;height:32px;color:#d1d5db;margin:0 auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">

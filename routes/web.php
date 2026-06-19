@@ -91,10 +91,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
 // ─── Panitia ──────────────────────────────────────────────────────────────────
 
+    // Dashboard
 Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Panitia\DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/events/create', [App\Http\Controllers\EventController::class, 'create'])->name('events.create');
-    Route::post('/events', [App\Http\Controllers\EventController::class, 'store'])->name('panitia.events.store');
 
     // Settings
     Route::get('/settings', function () {
@@ -103,8 +102,12 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
 
     // Report Peserta
     Route::get('/report-peserta', [ParticipantController::class, 'report'])->name('report_peserta');
+<<<<<<< Updated upstream
 
     Route::get('/report-peserta/export', [ParticipantController::class, 'exportExcel'])->name('report.excel');
+=======
+    Route::get('/export-excel', [ParticipantController::class, 'exportExcel'])->name('export-excel');
+>>>>>>> Stashed changes
     Route::post('/settings/update', function () {
         return back()->with('success', 'Profil berhasil diperbarui.');
     })->name('settings.update');

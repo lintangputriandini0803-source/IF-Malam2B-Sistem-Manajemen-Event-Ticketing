@@ -32,14 +32,18 @@
 
             <div class="flex flex-col gap-1 flex-grow">
                 <label class="text-xs font-bold text-gray-600 uppercase">Search</label>
-                <input type="text" name="search" placeholder="Cari nama, email..." 
+                <input type="text" name="search" placeholder="Cari nama, email..."
                        class="border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                        value="{{ request('search') }}">
             </div>
 
             <button type="submit" class="bg-gray-800 text-white px-6 py-2 rounded-lg text-sm hover:bg-black transition-colors">Terapkan</button>
 
+<<<<<<< Updated upstream
             <a href="{{ route('panitia.report.excel', request()->all()) }}" 
+=======
+            <a href="{{ route('panitia.export-excel', request()->all()) }}"
+>>>>>>> Stashed changes
                class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition-all text-sm font-medium">
                 📥 Ekspor Excel
             </a>
@@ -70,7 +74,7 @@
                     <td class="p-4 text-gray-600">{{ $p->nim ?? '-' }}</td>
                     <td class="p-4 text-gray-600">{{ $p->email ?? '-' }}</td>
                     <td class="p-4 text-gray-600">{{ $p->phone ?? '-' }}</td>
-                    <td class="p-4 text-gray-600">{{ $p->event->name ?? '-' }}</td>
+                    <td class="p-4 text-gray-600">{{ $p->event->title ?? '-' }}</td>
                     <td class="p-4 font-bold text-gray-900">Rp {{ number_format($p->total_price ?? 0, 0, ',', '.') }}</td>
                     <td class="p-4 text-center">
                         @php $status = $p->status ?? 'pending'; @endphp
