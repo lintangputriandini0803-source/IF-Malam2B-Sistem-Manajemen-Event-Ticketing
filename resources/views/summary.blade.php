@@ -96,7 +96,33 @@
         </div>
     </div>
 
+    {{-- Bug fix (Medium): sebelumnya halaman ini SELALU menampilkan tiket
+         digital + QR code apa pun status pembayarannya, sehingga bisa terlihat
+         seolah "berhasil" walau pembayaran belum benar-benar confirmed.
+         Sekarang tiket hanya ditampilkan jika status registrasi = confirmed. --}}
+    @php $orderStatus = $registrations->first()->status ?? 'pending'; @endphp
+
+    @if($orderStatus !== 'confirmed')
+        <div class="bg-white rounded-2xl shadow p-6 text-center mb-4">
+            <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg class="w-7 h-7 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h3 class="font-bold text-lg text-gray-900 mb-1">Menunggu Konfirmasi Pembayaran</h3>
+            <p class="text-sm text-gray-500 mb-4">
+                Tiket digital dan QR code akan muncul di sini secara otomatis setelah pembayaran kamu terkonfirmasi.
+                Proses ini biasanya hanya butuh beberapa saat.
+            </p>
+            <button onclick="window.location.reload()"
+                    class="inline-flex items-center gap-2 bg-[#6B0080] text-white font-semibold px-6 py-2.5 rounded-xl text-sm hover:bg-[#580068] transition">
+                Cek Status Terbaru
+            </button>
+        </div>
+    @endif
+
     {{-- Tiket Digital --}}
+    @if($orderStatus === 'confirmed')
     @php $ticketNum = 1; @endphp
     @foreach($registrations as $reg)
         @for($i = 0; $i < $reg->quantity; $i++)
@@ -121,6 +147,7 @@
         @php $ticketNum++; @endphp
         @endfor
     @endforeach
+    @endif
 
     <a href="{{ route('home') }}"
        class="block w-full text-center bg-[#6B0080] hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition mt-4">

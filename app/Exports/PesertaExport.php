@@ -8,9 +8,39 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class PesertaExport implements FromCollection, WithHeadings
 {
+    public function __construct(
+        protected int $panitiaId,
+        protected array $filters = [],
+    ) {
+    }
+
     public function collection()
     {
-        return Registration::all()->map(function($p) {
+        $query = Registration::whereHas('event', function ($q) {
+            $q->where('user_id', $this->panitiaId);
+        })->with(['event']);
+
+        if (! empty($this->filters['event_id'])) {
+            $query->where('event_id', $this->filters['event_id']);
+        }
+
+        if (! empty($this->filters['start_date']) && ! empty($this->filters['end_date'])) {
+            $query->whereBetween('created_at', [
+                $this->filters['start_date'] . ' 00:00:00',
+                $this->filters['end_date'] . ' 23:59:59',
+            ]);
+        }
+
+        if (! empty($this->filters['search'])) {
+            $q = $this->filters['search'];
+            $query->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('email', 'like', "%{$q}%")
+                      ->orWhere('reg_number', 'like', "%{$q}%");
+            });
+        }
+
+        return $query->latest()->get()->map(function ($p) {
             return [
                 $p->reg_number,
                 $p->created_at,
@@ -18,7 +48,7 @@ class PesertaExport implements FromCollection, WithHeadings
                 $p->nim,
                 $p->email,
                 $p->phone,
-                $p->event->name ?? '_',
+                $p->event->title ?? '-',
                 $p->total_price,
                 $p->status,
             ];

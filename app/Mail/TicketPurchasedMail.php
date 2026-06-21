@@ -32,7 +32,7 @@ class TicketPurchasedMail extends Mailable
         public array $buyer,
         public float $totalPrice,
     ) {
-        $this->tickets = $this->buildTickets();
+        $this->tickets = self::buildTicketsFor($this->registrations);
     }
 
     public function envelope(): Envelope
@@ -79,11 +79,11 @@ class TicketPurchasedMail extends Mailable
      * masing-masing dengan kode unik (format sama dengan yang dipakai TicketScanController)
      * dan QR code yang sudah di-generate sebagai base64 data-uri (tanpa API eksternal).
      */
-    protected function buildTickets(): array
+    public static function buildTicketsFor(Collection $registrations): array
     {
         $tickets = [];
 
-        foreach ($this->registrations as $reg) {
+        foreach ($registrations as $reg) {
             for ($i = 0; $i < $reg->quantity; $i++) {
                 $code = $reg->reg_number . '-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT);
 

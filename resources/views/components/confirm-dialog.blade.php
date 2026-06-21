@@ -1,27 +1,3 @@
-{{--
-    COMPONENT: confirm-dialog
-    Modal konfirmasi popup — cocok untuk aksi penting yang butuh konfirmasi user.
-    Contoh: konfirmasi ringkasan pembeli sebelum bayar, konfirmasi hapus data, dll.
-
-    CARA PAKAI (paling mudah — trigger via JS):
-      1. Taruh component ini sekali di halaman (biasanya sebelum </body>)
-         <x-confirm-dialog />
-
-      2. Panggil dari JS:
-         SimetixConfirm.show({
-             title   : 'Konfirmasi Pembelian',
-             message : 'Tiket akan dikirim ke email kamu. Pastikan email sudah benar.',
-             detail  : 'rafli@email.com',        // opsional, ditampilkan dalam kotak biru
-             confirm : 'Ya, Lanjutkan',
-             cancel  : 'Periksa Lagi',
-             type    : 'info',                   // info | warning | danger
-             onConfirm: () => document.getElementById('form-checkout').submit(),
-         });
-
-    PROPS (Blade, opsional — bisa diisi default via @props):
-      Tidak ada props wajib. Semua dikontrol via JS SimetixConfirm.show().
---}}
-
 <div id="simetix-confirm-overlay"
      style="display:none;position:fixed;inset:0;z-index:10000;
             background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);
@@ -115,14 +91,22 @@ const SimetixConfirm = {
         }
 
         this._cb = o.onConfirm;
+        this._confirming = false;
         const overlay = document.getElementById('simetix-confirm-overlay');
         overlay.style.display = 'flex';
         document.getElementById('simetix-confirm-box').style.animation = 'confirmIn .25s cubic-bezier(.21,1.02,.73,1) forwards';
     },
 
     confirm() {
+        // Bug fix (High): cegah onConfirm terpanggil dua kali kalau tombol
+        // konfirmasi diklik berkali-kali dengan cepat sebelum dialog tertutup.
+        if (this._confirming) return;
+        this._confirming = true;
+
         this.close();
         if (typeof this._cb === 'function') this._cb();
+
+        // Reset guard setiap kali dialog baru dibuka (lihat show()).
     },
 
     close() {

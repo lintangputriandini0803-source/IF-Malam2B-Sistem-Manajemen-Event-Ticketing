@@ -73,12 +73,13 @@
                                 <th class="text-left py-2 px-2 text-gray-500 font-medium">#</th>
                                 <th class="text-left py-2 px-2 text-gray-500 font-medium">Kode Tiket</th>
                                 <th class="text-left py-2 px-2 text-gray-500 font-medium">Nama</th>
+                                <th class="text-left py-2 px-2 text-gray-500 font-medium">Jenis Tiket</th>
                                 <th class="text-left py-2 px-2 text-gray-500 font-medium">Waktu Scan</th>
                             </tr>
                         </thead>
                         <tbody id="scanTableBody">
                             <tr id="emptyRow">
-                                <td colspan="4" class="text-center text-gray-400 py-8">Pilih event untuk melihat data scan</td>
+                                <td colspan="5" class="text-center text-gray-400 py-8">Pilih event untuk melihat data scan</td>
                             </tr>
                         </tbody>
                     </table>
@@ -121,7 +122,7 @@
         count.textContent = scanList.length + ' tiket';
 
         if (scanList.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-400 py-8">Belum ada tiket yang di-scan</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-400 py-8">Belum ada tiket yang di-scan</td></tr>`;
             return;
         }
 
@@ -130,6 +131,7 @@
                 <td class="py-2 px-2 text-gray-400">${i + 1}</td>
                 <td class="py-2 px-2 font-mono text-xs text-purple-700">${item.ticket_code}</td>
                 <td class="py-2 px-2 text-gray-700">${item.name}</td>
+                <td class="py-2 px-2 text-gray-600 text-xs">${item.ticket_type || '-'}${item.ticket_total > 1 ? ' &middot; tiket ke-' + item.ticket_index + ' dari ' + item.ticket_total : ''}</td>
                 <td class="py-2 px-2 text-gray-500 text-xs">${item.scanned_at}</td>
             </tr>
         `).join('');
@@ -198,6 +200,9 @@
                 scanList.unshift({
                     ticket_code: data.ticket_code,
                     name: data.name,
+                    ticket_type: data.ticket_type,
+                    ticket_index: data.ticket_index,
+                    ticket_total: data.ticket_total,
                     scanned_at: data.scanned_at
                 });
                 renderTable();

@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class Event extends Model
 {
-    
+
     protected $fillable = [
         'user_id',
         'category_id',
@@ -27,6 +27,11 @@ class Event extends Model
     public function ticketTypes()
     {
         return $this->hasMany(TicketType::class);
+    }
+
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class);
     }
 
     public function category()

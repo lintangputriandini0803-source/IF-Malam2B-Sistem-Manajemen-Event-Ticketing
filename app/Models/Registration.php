@@ -19,12 +19,15 @@ class Registration extends Model
         'phone',
         'quantity',
         'total_price',
+        'payment_method',
         'status',
+        'expires_at',
     ];
 
     protected $casts = [
         'total_price'    => 'decimal:2',
         'email_sent_at'  => 'datetime',
+        'expires_at'     => 'datetime',
     ];
 
     protected static function boot()

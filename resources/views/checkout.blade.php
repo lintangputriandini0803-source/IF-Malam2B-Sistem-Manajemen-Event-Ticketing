@@ -45,6 +45,20 @@
 <!-- CONTENT -->
 <div class="max-w-2xl mx-auto px-4 py-8">
 
+    {{-- Bug fix (High): sebelumnya halaman ini tidak menampilkan error apa pun
+         dari backend (validasi, kuota habis, ATAU error Midtrans), sehingga
+         pembeli tidak tahu kenapa pembayaran tidak bisa dilanjutkan. --}}
+    @if ($errors->any())
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-6 text-sm">
+            <p class="font-semibold mb-1">Terjadi masalah:</p>
+            <ul class="list-disc list-inside space-y-0.5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- ═══ STEP 1: DETAIL ═══ --}}
     <div id="page-1">
 
@@ -125,6 +139,7 @@
                         </span>
                     </label>
                     <input type="text" id="buyer-nim" required
+                           pattern="[A-Za-z0-9]+" inputmode="text"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
                            placeholder="NIM atau NIK">
                 </div>
@@ -151,13 +166,14 @@
                         </span>
                     </label>
                     <input type="text" id="buyer-phone" required
+                           pattern="\+?[0-9]{8,20}" inputmode="numeric"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
                            placeholder="08xxxxxxxxxx">
                 </div>
             </div>
         </div>
 
-        <button onclick="showKonfirmasiPembeli()"
+        <button id="lanjutkan-btn" onclick="showKonfirmasiPembeli()"
                 class="w-full bg-[#6B0080] hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition mt-2 flex items-center justify-center gap-2">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -282,12 +298,36 @@ function validateAndGoToPayment() {
         return;
     }
 
+    // Bug fix (Medium): NIM/NIK hanya boleh huruf & angka, No HP hanya boleh angka.
+    if (!/^[A-Za-z0-9]+$/.test(nim)) {
+        alert('NIM/NIK hanya boleh berisi huruf dan angka, tanpa spasi atau simbol.');
+        return;
+    }
+    if (!/^\+?[0-9]{8,20}$/.test(phone)) {
+        alert('Nomor HP hanya boleh berisi angka (8-20 digit, boleh diawali +).');
+        return;
+    }
+
     document.getElementById('f-name').value  = name;
     document.getElementById('f-nim').value   = nim;
     document.getElementById('f-email').value = email;
     document.getElementById('f-phone').value = phone;
 
-    document.getElementById('process-form').submit();
+    // Bug fix (High): cegah double-click / submit berkali-kali. Begitu form
+    // ini disubmit, tombol langsung dikunci sampai halaman pindah/reload,
+    // jadi klik berulang tidak akan mengirim request process() berkali-kali.
+    const form = document.getElementById('process-form');
+    if (form.dataset.submitted === '1') return;
+    form.dataset.submitted = '1';
+
+    const submitBtn = document.getElementById('simetix-confirm-ok');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.6';
+        submitBtn.textContent = 'Memproses...';
+    }
+
+    form.submit();
 }
 
 function showKonfirmasiPembeli() {

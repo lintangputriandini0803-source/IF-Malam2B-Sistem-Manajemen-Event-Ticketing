@@ -170,6 +170,9 @@
                 <a href="{{ route('panitia.events.edit', $event->id) }}" class="dropdown-item">
                     ✏️ Edit
                 </a>
+                <a href="{{ route('panitia.participants', $event->id) }}" class="dropdown-item">
+                    👥 Lihat Peserta
+                </a>
                 <a href="{{ route('event.show', $event->slug) }}" target="_blank" class="dropdown-item">
                     👁 Lihat
                 </a>

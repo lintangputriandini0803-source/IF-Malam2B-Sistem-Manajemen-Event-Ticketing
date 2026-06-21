@@ -13,6 +13,7 @@ class TicketType extends Model
         'price',
         'quota',
         'sold',
+        'status',
         'sale_start',
         'sale_end',
         'closes_at',
@@ -39,9 +40,33 @@ class TicketType extends Model
 
     // ─── Business logic ───────────────────────────────────────────────────────
 
+    /**
+     * Jumlah tiket yang sedang "dikunci" oleh reservasi pending yang masih
+     * aktif (belum expired). Reservasi pending yang sudah lewat expires_at
+     * dianggap hangus dan tidak menahan kuota lagi.
+     *
+     * Catatan: kolom `sold` HANYA mewakili tiket yang sudah confirmed,
+     * sehingga jumlah pending aktif harus dihitung terpisah di sini.
+     */
+    public function getActivePendingCount(): int
+    {
+        return $this->registrations()
+            ->where('status', 'pending')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                  ->orWhere('expires_at', '>=', now());
+            })
+            ->sum('quantity');
+    }
+
+    /**
+     * Sisa kuota nyata = kuota total - (tiket confirmed + tiket yang sedang
+     * direservasi orang lain dan belum expired).
+     */
     public function getRemainingQuota(): int
     {
-        return max(0, $this->quota - $this->sold);
+        $used = $this->sold + $this->getActivePendingCount();
+        return max(0, $this->quota - $used);
     }
 
     /** Cek apakah tiket masih dalam periode penjualan (sale_start / sale_end) */
@@ -65,7 +90,8 @@ class TicketType extends Model
      */
     public function isAvailable(int $qty = 1): bool
     {
-        return $this->getRemainingQuota() >= $qty
+        return $this->status !== 'inactive'
+            && $this->getRemainingQuota() >= $qty
             && $this->isSaleOpen()
             && $this->isWithinTimeLimit();
     }
@@ -79,6 +105,7 @@ class TicketType extends Model
      */
     public function getStatus(): string
     {
+        if ($this->status === 'inactive')    return 'inactive';
         if (! $this->isSaleOpen())           return 'not_open';
         if (! $this->isWithinTimeLimit())    return 'time_closed';
         if ($this->getRemainingQuota() <= 0) return 'sold_out';
@@ -97,9 +124,12 @@ class TicketType extends Model
     }
 
     /**
-     * Kurangi kuota secara atomik menggunakan DB lock
+     * Konfirmasi permanen: tambahkan ke `sold` setelah pembayaran benar-benar
+     * sukses (dipanggil dari webhook Midtrans / summary setelah verifikasi).
+     * Atomik dengan guard agar tidak pernah melebihi quota walau dipanggil
+     * berkali-kali secara bersamaan (mis. webhook + redirect finish race).
      */
-    public function decreaseQuota(int $qty): bool
+    public function confirmSold(int $qty): bool
     {
         $updated = self::where('id', $this->id)
             ->where('sold', '<=', \DB::raw("quota - {$qty}"))

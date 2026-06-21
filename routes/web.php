@@ -102,7 +102,6 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
 
     // Report Peserta
     Route::get('/report-peserta', [ParticipantController::class, 'report'])->name('report_peserta');
-    Route::get('/report-peserta', [ParticipantController::class, 'report'])->name('report_peserta');
     Route::get('/report-peserta/export', [ParticipantController::class, 'exportExcel'])->name('report.excel');
     Route::post('/settings/update', function () {
         return back()->with('success', 'Profil berhasil diperbarui.');
@@ -130,6 +129,7 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
     // Tickets & Participants
     Route::resource('/events/{event}/tickets', TicketTypeController::class)->names('tickets');
     Route::get('/events/{event}/participants', [ParticipantController::class, 'index'])->name('participants');
+    Route::get('/events/{event}/participants/{registration}/ticket', [ParticipantController::class, 'downloadTicket'])->name('participants.ticket');
 });
 
 

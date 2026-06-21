@@ -62,7 +62,11 @@ class TicketTypeController extends Controller
         $request->validate([
             'name'        => 'required|string|max:255',
             'price'       => 'required|numeric|min:0',
-            'quota'       => 'required|integer|min:1',
+            'quota'       => ['required', 'integer', 'min:1', function ($attribute, $value, $fail) use ($ticket) {
+                if ($value < $ticket->sold) {
+                    $fail("Kuota tidak boleh lebih kecil dari jumlah tiket yang sudah terjual ({$ticket->sold}).");
+                }
+            }],
             'description' => 'nullable|string',
             'sale_start'  => 'nullable|date',
             'sale_end'    => 'nullable|date|after_or_equal:sale_start',
@@ -77,6 +81,15 @@ class TicketTypeController extends Controller
     public function destroy(Event $event, TicketType $ticket)
     {
         abort_if($event->user_id !== Auth::id(), 403);
+
+        if ($ticket->sold > 0) {
+            // Sudah ada transaksi yang memakai tipe tiket ini — hard delete akan
+            // merusak relasi (registrations/registration_details masih merujuk
+            // ke baris ini). Gunakan soft-disable sebagai gantinya.
+            $ticket->update(['status' => 'inactive']);
+            return back()->with('success', "Tipe tiket \"{$ticket->name}\" sudah pernah dibeli, sehingga dinonaktifkan (bukan dihapus) agar data transaksi tetap aman.");
+        }
+
         $ticket->delete();
         return back()->with('success', 'Tipe tiket berhasil dihapus.');
     }

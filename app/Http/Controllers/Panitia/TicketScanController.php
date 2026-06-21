@@ -33,15 +33,7 @@ class TicketScanController extends Controller
         ->orderByDesc('scanned_at')
         ->get()
         ->map(function ($scan) {
-            // Ambil nama dari registrasi
-            $parts = explode('-', $scan->ticket_code);
-            $regNumber = implode('-', array_slice($parts, 0, 3));
-            $registration = \App\Models\Registration::where('reg_number', $regNumber)->first();
-            return [
-                'ticket_code' => $scan->ticket_code,
-                'name'        => $registration ? $registration->name : '-',
-                'scanned_at'  => $scan->scanned_at->format('d/m/Y H:i:s'),
-            ];
+            return $this->describeTicketCode($scan->ticket_code, $scan->scanned_at->format('d/m/Y H:i:s'));
         });
 
         return response()->json(['scans' => $scans]);
@@ -83,7 +75,7 @@ class TicketScanController extends Controller
     $regNumber = implode('-', array_slice($parts, 0, 3));
 
     // Cari registrasi
-    $registration = \App\Models\Registration::where('reg_number', $regNumber)->first();
+    $registration = \App\Models\Registration::with('ticketType')->where('reg_number', $regNumber)->first();
 
     if (!$registration) {
         return response()->json([
@@ -108,12 +100,21 @@ class TicketScanController extends Controller
         ], 422);
     }
 
+    // "Tiket ke-N dari M" — urutan tiket diambil dari suffix kode, total dari quantity registrasi
+    $ticketIndex = (int) end($parts);
+    $ticketTotal = (int) $registration->quantity;
+
     // Cek duplikasi scan
     $alreadyScanned = \App\Models\TicketScan::where('ticket_code', $ticketCode)->first();
     if ($alreadyScanned) {
         return response()->json([
-            'status'     => 'duplicate',
-            'message'    => 'Tiket sudah digunakan pada ' . $alreadyScanned->scanned_at,
+            'status'       => 'duplicate',
+            'message'      => 'Tiket sudah digunakan oleh ' . $registration->name . ' pada ' . $alreadyScanned->scanned_at->format('d/m/Y H:i:s'),
+            'name'         => $registration->name,
+            'ticket_type'  => $registration->ticketType->name ?? '-',
+            'ticket_index' => $ticketIndex,
+            'ticket_total' => $ticketTotal,
+            'scanned_at'   => $alreadyScanned->scanned_at->format('d/m/Y H:i:s'),
         ], 409);
     }
 
@@ -125,14 +126,38 @@ class TicketScanController extends Controller
     ]);
 
    return response()->json([
-    'status'      => 'success',
-    'message'     => 'Tiket valid! Selamat datang, ' . $registration->name . '.',
-    'ticket_code' => $ticketCode,
-    'name'        => $registration->name,
-    'scanned_at'  => now()->format('d/m/Y H:i:s'),
-    'event'       => $event->title,
+    'status'       => 'success',
+    'message'      => 'Tiket valid! Selamat datang, ' . $registration->name . '.',
+    'ticket_code'  => $ticketCode,
+    'name'         => $registration->name,
+    'ticket_type'  => $registration->ticketType->name ?? '-',
+    'ticket_index' => $ticketIndex,
+    'ticket_total' => $ticketTotal,
+    'scanned_at'   => now()->format('d/m/Y H:i:s'),
+    'event'        => $event->title,
     ]);
 
 
-}}
+}
+
+    /**
+     * Bangun representasi tampilan untuk satu baris riwayat scan, termasuk
+     * jenis tiket dan "tiket ke-N dari M" berdasarkan kode tiketnya.
+     */
+    private function describeTicketCode(string $ticketCode, string $scannedAtFormatted): array
+    {
+        $parts = explode('-', $ticketCode);
+        $regNumber = implode('-', array_slice($parts, 0, 3));
+        $registration = \App\Models\Registration::with('ticketType')->where('reg_number', $regNumber)->first();
+
+        return [
+            'ticket_code'  => $ticketCode,
+            'name'         => $registration ? $registration->name : '-',
+            'ticket_type'  => $registration && $registration->ticketType ? $registration->ticketType->name : '-',
+            'ticket_index' => (int) end($parts),
+            'ticket_total' => $registration ? (int) $registration->quantity : 1,
+            'scanned_at'   => $scannedAtFormatted,
+        ];
+    }
+}
 

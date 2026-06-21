@@ -8,12 +8,17 @@ use App\Models\Registration;
 use App\Models\TicketType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Midtrans\Transaction;
 
 class CheckoutController extends Controller
 {
+    /** Lama waktu reservasi pending ditahan sebelum hangus (harus selaras dengan timer 15 menit di checkout.blade.php). */
+    private const RESERVATION_MINUTES = 15;
+
     public function __construct()
     {
         Config::$serverKey    = config('midtrans.server_key');
@@ -26,6 +31,12 @@ class CheckoutController extends Controller
 
     public function store(Request $request, Event $event)
     {
+        // Bug fix (Critical): event yang sudah selesai tidak boleh lagi dicheckout.
+        if ($event->isExpired()) {
+            return redirect()->route('event.show', $event->slug)
+                ->withErrors(['error' => 'Event ini sudah berakhir, pembelian tiket tidak tersedia lagi.']);
+        }
+
         $tickets         = $request->input('tickets', []);
         $selectedTickets = [];
         $totalPrice      = 0;
@@ -59,62 +70,91 @@ class CheckoutController extends Controller
 
     public function process(Request $request, Event $event)
     {
+        // Bug fix (Critical): cegah checkout pada event yang sudah berakhir,
+        // walau request dikirim langsung ke endpoint ini (bypass step 1).
+        if ($event->isExpired()) {
+            return back()->withErrors(['error' => 'Event ini sudah berakhir, pembelian tiket tidak tersedia lagi.']);
+        }
+
+        // Bug fix (High): spam checkout / klik berkali-kali dalam waktu singkat.
+        // Dibatasi per kombinasi IP + email agar satu orang tidak bisa membuat
+        // banyak order beruntun dalam hitungan detik.
+        $throttleKey = 'checkout-process:' . $request->ip() . '|' . strtolower((string) $request->input('buyer_email'));
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            return back()->withErrors(['error' => 'Terlalu banyak percobaan checkout. Silakan tunggu sebentar lalu coba lagi.']);
+        }
+        RateLimiter::hit($throttleKey, 30); // max 3 percobaan per 30 detik
+
         $request->validate([
             'buyer_name'   => 'required|string|max:255',
-            'buyer_nim'    => 'required|string|max:50',
+            // Bug fix (Medium): NIM/NIK harus alfanumerik, tidak boleh karakter bebas.
+            'buyer_nim'    => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9]+$/'],
             'buyer_email'  => 'required|email',
-            'buyer_phone'  => 'required|string|max:20',
+            // Bug fix (Medium): No HP harus berupa digit saja (boleh diawali +).
+            'buyer_phone'  => ['required', 'string', 'max:20', 'regex:/^\+?[0-9]{8,20}$/'],
             'tickets'      => 'required|array',
+        ], [
+            'buyer_nim.regex'   => 'NIM/NIK hanya boleh berisi huruf dan angka.',
+            'buyer_phone.regex' => 'Nomor HP hanya boleh berisi angka (boleh diawali +).',
         ]);
 
+        // Bug fix (Critical): validasi ulang & kunci baris tiket di dalam transaksi
+        // DB supaya tidak ada race condition antar checkout yang berbarengan,
+        // dan supaya kuota TIDAK langsung berkurang permanen di sini — hanya
+        // direservasi sementara via status 'pending' + expires_at.
         $orderRef    = 'SIMETIX-' . strtoupper(Str::random(4)) . '-' . time();
         $totalPrice  = 0;
         $itemDetails = [];
+        $expiresAt   = now()->addMinutes(self::RESERVATION_MINUTES);
 
-        // ── Validasi kuota & hitung total ──────────────────────────────────
+        try {
+            $registrations = \DB::transaction(function () use ($request, $event, $orderRef, $expiresAt, &$totalPrice, &$itemDetails) {
+                $created = [];
 
-        foreach ($request->tickets as $item) {
-            $ticket = TicketType::findOrFail($item['id']);
-            $qty    = (int) $item['qty'];
+                foreach ($request->tickets as $item) {
+                    // lockForUpdate agar dua request bersamaan tidak lolos validasi kuota yang sama.
+                    $ticket = TicketType::where('id', $item['id'])->lockForUpdate()->firstOrFail();
+                    $qty    = (int) $item['qty'];
 
-            if (! $ticket->isAvailable($qty)) {
-                return back()->withErrors(['error' => "Tiket {$ticket->name} tidak tersedia lagi saat proses."]);
-            }
+                    if ($ticket->event_id !== $event->id) {
+                        throw new \RuntimeException("Tiket {$ticket->name} tidak valid untuk event ini.");
+                    }
 
-            $subtotal     = $ticket->price * $qty;
-            $totalPrice  += $subtotal;
+                    if (! $ticket->isAvailable($qty)) {
+                        throw new \RuntimeException("Tiket {$ticket->name} tidak tersedia lagi saat proses (sisa: {$ticket->getRemainingQuota()}).");
+                    }
 
-            $itemDetails[] = [
-                'id'       => (string) $ticket->id,
-                'price'    => (int) $ticket->price,
-                'quantity' => $qty,
-                'name'     => substr($event->title . ' - ' . $ticket->name, 0, 50),
-            ];
-        }
+                    $subtotal    = $ticket->price * $qty;
+                    $totalPrice += $subtotal;
 
-        // ── Simpan registrasi dengan status pending ────────────────────────
+                    $itemDetails[] = [
+                        'id'       => (string) $ticket->id,
+                        'price'    => (int) $ticket->price,
+                        'quantity' => $qty,
+                        'name'     => substr($event->title . ' - ' . $ticket->name, 0, 50),
+                    ];
 
-        foreach ($request->tickets as $item) {
-            $ticket = TicketType::findOrFail($item['id']);
-            $qty    = (int) $item['qty'];
+                    $created[] = Registration::create([
+                        'event_id'       => $event->id,
+                        'ticket_type_id' => $ticket->id,
+                        'order_ref'      => $orderRef,
+                        'name'           => $request->buyer_name,
+                        'nim'            => $request->buyer_nim,
+                        'email'          => $request->buyer_email,
+                        'phone'          => $request->buyer_phone,
+                        'quantity'       => $qty,
+                        'total_price'    => $subtotal,
+                        'payment_method' => 'midtrans',
+                        'status'         => 'pending',
+                        'expires_at'     => $expiresAt,
+                    ]);
+                }
 
-            if (! $ticket->decreaseQuota($qty)) {
-                return back()->withErrors(['error' => "Gagal memproses tiket {$ticket->name}, coba lagi."]);
-            }
-
-            Registration::create([
-                'event_id'       => $event->id,
-                'ticket_type_id' => $ticket->id,
-                'order_ref'      => $orderRef,
-                'name'           => $request->buyer_name,
-                'nim'            => $request->buyer_nim,
-                'email'          => $request->buyer_email,
-                'phone'          => $request->buyer_phone,
-                'quantity'       => $qty,
-                'total_price'    => $ticket->price * $qty,
-                'payment_method' => 'midtrans',
-                'status'         => 'pending',
-            ]);
+                return $created;
+            });
+        } catch (\Throwable $e) {
+            \Log::warning('Checkout gagal: ' . $e->getMessage());
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
 
         // ── Buat Midtrans Snap token ───────────────────────────────────────
@@ -138,8 +178,16 @@ class CheckoutController extends Controller
         try {
             $snapToken = Snap::getSnapToken($params);
         } catch (\Exception $e) {
-            $snapToken = null;
             \Log::error('Midtrans error: ' . $e->getMessage());
+
+            // Bug fix (High): jika gagal dapat snap token, batalkan reservasi
+            // yang baru dibuat supaya tidak menahan kuota orang lain secara
+            // percuma, dan tampilkan pesan error yang jelas ke pembeli.
+            Registration::where('order_ref', $orderRef)->update(['status' => 'cancelled']);
+
+            return back()->withErrors([
+                'error' => 'Gagal menghubungi layanan pembayaran (Midtrans). Pesanan dibatalkan otomatis, silakan coba lagi.',
+            ]);
         }
 
         // ── Simpan ke session, redirect kembali ke checkout di step 2 ──────
@@ -175,17 +223,32 @@ class CheckoutController extends Controller
 
         if (! $orderRef) return redirect()->route('event.show', $event->slug);
 
-        $transactionStatus = request('transaction_status');
-        if ($transactionStatus) {
-            $newStatus = match ($transactionStatus) {
-                'capture', 'settlement' => 'confirmed',
-                'cancel', 'expire'      => 'cancelled',
-                default                 => 'pending',
-            };
-            Registration::where('order_ref', $orderRef)->update(['status' => $newStatus]);
+        // Bug fix (Critical): JANGAN percaya parameter `transaction_status` dari
+        // query string apa adanya (itu dikirim oleh browser/JS milik pembeli,
+        // gampang dipalsukan). Verifikasi status transaksi yang sebenarnya
+        // langsung ke server Midtrans sebelum mengubah status registrasi
+        // atau menambah `sold`.
+        if (request()->filled('transaction_status') || request()->filled('order_id')) {
+            $this->verifyAndSyncStatus($orderRef);
         }
 
         $registrations = Registration::where('order_ref', $orderRef)->with(['ticketType', 'event'])->get();
+
+        if ($registrations->isEmpty()) {
+            return redirect()->route('event.show', $event->slug)
+                ->withErrors(['error' => 'Pesanan tidak ditemukan.']);
+        }
+
+        $status = $registrations->first()->status;
+
+        // Bug fix (Medium): halaman ringkasan tidak boleh bisa dibuka/dianggap
+        // "berhasil" selama pembayaran belum benar-benar confirmed. Kalau
+        // masih pending atau sudah cancelled/expired, arahkan ke pesan yang
+        // sesuai daripada menampilkan ringkasan seolah sukses.
+        if ($status === 'cancelled') {
+            return redirect()->route('event.show', $event->slug)
+                ->withErrors(['error' => 'Pesanan ini dibatalkan atau sudah kedaluwarsa.']);
+        }
 
         $buyer = [
             'name'  => session('buyer_name')  ?? ($registrations->first()->name  ?? '-'),
@@ -196,13 +259,86 @@ class CheckoutController extends Controller
 
         $totalPrice = session('total_price') ?? $registrations->sum('total_price');
 
-        // Kirim email tiket jika status sudah confirmed dan belum pernah dikirim.
-        // (Dijaga oleh kolom email_sent_at agar tidak dobel dengan trigger dari webhook notification().)
-        if ($registrations->isNotEmpty() && $registrations->first()->status === 'confirmed') {
-            $this->sendTicketEmailIfNeeded($registrations, $orderRef, $buyer, (float) $totalPrice);
+        if ($status !== 'confirmed') {
+            // Masih pending (belum bayar / belum ada notifikasi Midtrans masuk).
+            return view('summary', compact('event', 'registrations', 'buyer', 'orderRef', 'totalPrice'))
+                ->with('info', 'Pembayaran kamu sedang diproses. Halaman ini akan menampilkan tiket setelah pembayaran terkonfirmasi.');
         }
 
-        return view('summary', compact('event', 'registrations', 'buyer', 'orderRef', 'totalPrice'))->with('info', 'Pembelian berhasi, Silakan cek email kamu');
+        // Kirim email tiket jika status sudah confirmed dan belum pernah dikirim.
+        // (Dijaga oleh kolom email_sent_at agar tidak dobel dengan trigger dari webhook notification().)
+        $emailSent = $this->sendTicketEmailIfNeeded($registrations, $orderRef, $buyer, (float) $totalPrice);
+
+        // Bug fix (Low): perbaiki typo "berhasi" → "berhasil".
+        // Bug fix (Low): jika pengiriman email gagal, beri tahu pembeli secara
+        // jujur alih-alih selalu bilang "cek email kamu".
+        $message = $emailSent
+            ? 'Pembelian berhasil. Silakan cek email kamu untuk tiket.'
+            : 'Pembelian berhasil, namun email tiket gagal terkirim. Silakan hubungi panitia atau simpan halaman ini sebagai bukti pembelian.';
+
+        return view('summary', compact('event', 'registrations', 'buyer', 'orderRef', 'totalPrice'))
+            ->with($emailSent ? 'info' : 'warning', $message);
+    }
+
+    /**
+     * Tanyakan langsung ke Midtrans status transaksi yang sebenarnya untuk
+     * order_ref ini, lalu sinkronkan status registrasi & kuota `sold`
+     * berdasarkan jawaban Midtrans — BUKAN berdasarkan parameter URL yang
+     * dikirim oleh klien.
+     */
+    private function verifyAndSyncStatus(string $orderRef): void
+    {
+        try {
+            $result      = Transaction::status($orderRef);
+            $txStatus    = $result->transaction_status ?? null;
+            $fraudStatus = $result->fraud_status ?? null;
+        } catch (\Exception $e) {
+            \Log::warning("Tidak bisa verifikasi status Midtrans untuk {$orderRef}: " . $e->getMessage());
+            return;
+        }
+
+        $this->applyVerifiedStatus($orderRef, $txStatus, $fraudStatus);
+    }
+
+    /**
+     * Terapkan status yang SUDAH diverifikasi (dari Midtrans, baik lewat
+     * webhook notification() maupun verifyAndSyncStatus()) ke seluruh
+     * registrasi dalam satu order_ref, sekaligus menambah `sold` secara
+     * permanen hanya pada saat transisi pertama kali ke 'confirmed'.
+     */
+    private function applyVerifiedStatus(string $orderRef, ?string $txStatus, ?string $fraudStatus): void
+    {
+        $newStatus = match ($txStatus) {
+            'capture'    => $fraudStatus === 'challenge' ? 'pending' : 'confirmed',
+            'settlement' => 'confirmed',
+            'cancel', 'deny', 'expire' => 'cancelled',
+            default      => null, // status lain (pending, dsb) → tidak diubah
+        };
+
+        if ($newStatus === null) {
+            return;
+        }
+
+        \DB::transaction(function () use ($orderRef, $newStatus) {
+            $registrations = Registration::where('order_ref', $orderRef)
+                ->where('status', '!=', $newStatus) // idempoten: skip kalau sudah di status ini
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($registrations as $reg) {
+                $previousStatus = $reg->status;
+                $reg->status = $newStatus;
+                $reg->save();
+
+                // Bug fix (Critical): kuota (`sold`) HANYA bertambah permanen
+                // di sini, persis pada transisi ke 'confirmed' — bukan saat
+                // checkout dibuat. Reservasi pending otomatis berhenti
+                // menahan kuota begitu statusnya berubah dari 'pending'.
+                if ($newStatus === 'confirmed' && $previousStatus !== 'confirmed' && $reg->ticketType) {
+                    $reg->ticketType->confirmSold($reg->quantity);
+                }
+            }
+        });
     }
 
     // ─── Webhook Midtrans ─────────────────────────────────────────────────────
@@ -215,37 +351,21 @@ class CheckoutController extends Controller
             $txStatus      = $notification->transaction_status;
             $fraudStatus   = $notification->fraud_status ?? null;
 
-            $newStatus = 'pending';
-            if ($txStatus === 'capture') {
-                $newStatus = $fraudStatus === 'challenge' ? 'pending' : 'confirmed';
-            } elseif ($txStatus === 'settlement') {
-                $newStatus = 'confirmed';
-            } elseif (in_array($txStatus, ['cancel', 'deny', 'expire'])) {
-                $newStatus = 'cancelled';
-                Registration::where('order_ref', $orderId)->with('ticketType')->each(function ($reg) {
-                    if ($reg->ticketType) {
-                        \DB::table('ticket_types')->where('id', $reg->ticket_type_id)->decrement('sold', $reg->quantity);
-                    }
-                });
-            }
+            $this->applyVerifiedStatus($orderId, $txStatus, $fraudStatus);
 
-            Registration::where('order_ref', $orderId)->update(['status' => $newStatus]);
+            $registrations = Registration::where('order_ref', $orderId)->where('status', 'confirmed')->with(['ticketType', 'event'])->get();
 
-            if ($newStatus === 'confirmed') {
-                $registrations = Registration::where('order_ref', $orderId)->with(['ticketType', 'event'])->get();
+            if ($registrations->isNotEmpty()) {
+                $first = $registrations->first();
+                $buyer = [
+                    'name'  => $first->name,
+                    'nim'   => $first->nim,
+                    'email' => $first->email,
+                    'phone' => $first->phone,
+                ];
+                $totalPrice = (float) $registrations->sum('total_price');
 
-                if ($registrations->isNotEmpty()) {
-                    $first = $registrations->first();
-                    $buyer = [
-                        'name'  => $first->name,
-                        'nim'   => $first->nim,
-                        'email' => $first->email,
-                        'phone' => $first->phone,
-                    ];
-                    $totalPrice = (float) $registrations->sum('total_price');
-
-                    $this->sendTicketEmailIfNeeded($registrations, $orderId, $buyer, $totalPrice);
-                }
+                $this->sendTicketEmailIfNeeded($registrations, $orderId, $buyer, $totalPrice);
             }
 
             return response()->json(['status' => 'ok']);
@@ -257,16 +377,19 @@ class CheckoutController extends Controller
 
     // ─── Kirim email tiket (PDF + ucapan terima kasih), dijaga anti-dobel ─────
 
-    private function sendTicketEmailIfNeeded($registrations, string $orderRef, array $buyer, float $totalPrice): void
+    /**
+     * @return bool true jika email berhasil terkirim (atau memang sudah pernah terkirim sebelumnya), false jika gagal kirim.
+     */
+    private function sendTicketEmailIfNeeded($registrations, string $orderRef, array $buyer, float $totalPrice): bool
     {
         $alreadySent = $registrations->first()->email_sent_at !== null;
         if ($alreadySent) {
-            return;
+            return true;
         }
 
         if (empty($buyer['email'])) {
             \Log::warning("Tidak bisa kirim email tiket untuk order {$orderRef}: email pembeli kosong.");
-            return;
+            return false;
         }
 
         try {
@@ -275,8 +398,13 @@ class CheckoutController extends Controller
             );
 
             Registration::where('order_ref', $orderRef)->update(['email_sent_at' => now()]);
+            return true;
         } catch (\Exception $e) {
+            // Bug fix (Low): sebelumnya hanya di-log dan pembeli tidak pernah
+            // diberi tahu kalau email gagal terkirim. Sekarang status gagal
+            // dikembalikan ke pemanggil supaya bisa ditampilkan di halaman summary.
             \Log::error("Gagal mengirim email tiket untuk order {$orderRef}: " . $e->getMessage());
+            return false;
         }
     }
 }

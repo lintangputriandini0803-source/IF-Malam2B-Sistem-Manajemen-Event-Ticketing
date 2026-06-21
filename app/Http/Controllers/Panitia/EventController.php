@@ -67,8 +67,9 @@ class EventController extends Controller
 
         $posterPath = null;
         if ($request->hasFile('poster')) {
-            $posterPath = $request->file('poster')->getClientOriginalName();
-            $request->file('poster')->move(public_path('poster'), $posterPath);
+            $file = $request->file('poster');
+            $posterPath = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('poster'), $posterPath);
         }
 
         // Auto-publish: jika event_date hari ini atau sudah lewat → langsung published
@@ -122,8 +123,14 @@ class EventController extends Controller
 
         $posterPath = $event->poster;
         if ($request->hasFile('poster')) {
-            $posterPath = $request->file('poster')->getClientOriginalName();
-            $request->file('poster')->move(public_path('poster'), $posterPath);
+            $file = $request->file('poster');
+            $posterPath = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('poster'), $posterPath);
+
+            // Hapus poster lama agar tidak menumpuk di storage
+            if ($event->poster && file_exists(public_path('poster/' . $event->poster))) {
+                @unlink(public_path('poster/' . $event->poster));
+            }
         }
 
         // Jika panitia manual pilih status, pakai itu — kecuali jika event_date sudah tiba dan masih draft → auto publish
