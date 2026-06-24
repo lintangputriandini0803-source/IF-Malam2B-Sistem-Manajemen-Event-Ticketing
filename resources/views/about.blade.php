@@ -36,9 +36,6 @@
                     <img src="{{ asset('img/team-photo.png') }}"
                     alt="Tim SIMETIX"
                     class="rounded-2xl shadow-md max-h-64 object-cover">
-                    <img src="{{ asset('img/team-photo.png') }}"
-                    alt="Tim SIMETIX"
-                    class="rounded-2xl shadow-md max-h-64 object-cover">
                 </div>
             </div>
             @endif

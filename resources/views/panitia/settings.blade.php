@@ -10,7 +10,6 @@
     <div style="display:flex;gap:4px;background:white;padding:6px;border-radius:12px;margin-bottom:20px;width:fit-content">
         <button class="tab-btn active" onclick="switchTab('profil', this)">👤 Profil</button>
         <button class="tab-btn" onclick="switchTab('keamanan', this)">🔒 Keamanan</button>
-        <button class="tab-btn" onclick="switchTab('notifikasi', this)">🔔 Notifikasi</button>
     </div>
 
     {{-- TAB: PROFIL --}}

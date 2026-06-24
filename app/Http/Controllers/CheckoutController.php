@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Transaction;
+use Illuminate\Support\Facades\Hash;
+use App\Mail\OtpVerificationMail;
 
 class CheckoutController extends Controller
 {
@@ -37,7 +39,77 @@ class CheckoutController extends Controller
                 ->withErrors(['error' => 'Event ini sudah berakhir, pembelian tiket tidak tersedia lagi.']);
         }
 
-        $tickets         = $request->input('tickets', []);
+        $tickets = $request->input('tickets', []);
+
+        [$selectedTickets, $totalPrice, $error] = $this->validateSelectedTickets($event, $tickets);
+        if ($error) return back()->withErrors(['error' => $error]);
+
+        // Bug fix (Critical): sebelumnya halaman checkout di-render langsung dari
+        // response POST ini, sehingga URL /checkout di address bar sebenarnya hasil
+        // POST. Kalau halaman itu di-refresh, browser mengirim GET ke URL yang sama
+        // → 405 (route checkout cuma terdaftar POST). Sekarang pilihan tiket disimpan
+        // ke session lalu redirect ke route GET (checkout.show) yang aman direfresh.
+        session()->forget(['snap_token', 'order_ref', 'on_step']);
+        session([
+            'pending_checkout' => [
+                'event_id' => $event->id,
+                'tickets'  => $tickets,
+            ],
+        ]);
+
+        return redirect()->route('checkout.show', $event->slug);
+    }
+
+    // ─── Halaman checkout (GET, aman direfresh) ──────────────────────────────
+
+    public function show(Event $event)
+    {
+        // Sedang di step 2 (sudah dapat snap token) untuk event ini → render ulang step 2.
+        if (session('on_step') == 2 && session('event_id') === $event->id && session('order_ref')) {
+            $registrations = Registration::where('order_ref', session('order_ref'))
+                ->where('status', 'pending')
+                ->with('ticketType')
+                ->get();
+
+            if ($registrations->isNotEmpty()) {
+                $selectedTickets = $registrations->map(fn ($reg) => [
+                    'ticket' => $reg->ticketType,
+                    'qty'    => $reg->quantity,
+                ])->all();
+                $totalPrice = session('total_price') ?? $registrations->sum('total_price');
+
+                return view('checkout', compact('event', 'selectedTickets', 'totalPrice'));
+            }
+
+            // Reservasi sudah tidak ada (mis. sudah expired/cancelled) → bersihkan & jatuh ke bawah.
+            session()->forget(['snap_token', 'order_ref', 'on_step', 'total_price']);
+        }
+
+        // Belum/tidak di step 2 → coba pakai pilihan tiket step 1 yang tersimpan di session.
+        $pending = session('pending_checkout');
+
+        if ($pending && (int) $pending['event_id'] === $event->id) {
+            [$selectedTickets, $totalPrice, $error] = $this->validateSelectedTickets($event, $pending['tickets']);
+
+            if (! $error) {
+                return view('checkout', compact('event', 'selectedTickets', 'totalPrice'));
+            }
+        }
+
+        // Tidak ada sesi checkout yang valid untuk event ini (mis. dibuka langsung,
+        // refresh setelah sesi habis, atau pindah ke event lain) → balik ke halaman event.
+        return redirect()->route('event.show', $event->slug)
+            ->withErrors(['error' => 'Sesi checkout sudah berakhir atau tidak ditemukan. Silakan pilih tiket kembali.']);
+    }
+
+    /**
+     * Validasi pilihan tiket mentah (ticket_id => qty) terhadap event & kuota.
+     * Dipakai bersama oleh store() dan show() agar logikanya konsisten.
+     *
+     * @return array{0: array, 1: int, 2: string|null} [$selectedTickets, $totalPrice, $errorMessage]
+     */
+    private function validateSelectedTickets(Event $event, array $tickets): array
+    {
         $selectedTickets = [];
         $totalPrice      = 0;
 
@@ -49,21 +121,40 @@ class CheckoutController extends Controller
             if (! $ticket || $ticket->event_id !== $event->id) continue;
 
             $status = $ticket->getStatus();
-            if ($status === 'sold_out')    return back()->withErrors(['error' => "Tiket {$ticket->name} sudah habis."]);
-            if ($status !== 'available')   return back()->withErrors(['error' => "Tiket {$ticket->name} tidak tersedia."]);
+            if ($status === 'sold_out')    return [[], 0, "Tiket {$ticket->name} sudah habis."];
+            if ($status !== 'available')   return [[], 0, "Tiket {$ticket->name} tidak tersedia."];
             if ($ticket->getRemainingQuota() < $qty)
-                return back()->withErrors(['error' => "Kuota tiket {$ticket->name} tidak mencukupi (sisa: {$ticket->getRemainingQuota()})."]);
+                return [[], 0, "Kuota tiket {$ticket->name} tidak mencukupi (sisa: {$ticket->getRemainingQuota()})."];
 
             $selectedTickets[] = ['ticket' => $ticket, 'qty' => $qty];
             $totalPrice += $ticket->price * $qty;
         }
 
-        if (empty($selectedTickets)) return back()->withErrors(['error' => 'Pilih minimal 1 tiket.']);
+        if (empty($selectedTickets)) return [[], 0, 'Pilih minimal 1 tiket.'];
 
-        // Bersihkan session lama
-        session()->forget(['snap_token', 'order_ref', 'on_step']);
+        return [$selectedTickets, $totalPrice, null];
+    }
 
-        return view('checkout', compact('event', 'selectedTickets', 'totalPrice'));
+    /**
+     * Bug fix (Critical): lapisan jaga-jaga tambahan selain lockForUpdate di
+     * Registration::generateRegNumber(). Kalau tetap kena duplicate entry pada
+     * reg_number (mis. baris pertama di tahun baru, sebelum ada baris untuk
+     * di-lock), coba lagi beberapa kali dengan reg_number yang baru digenerate,
+     * alih-alih langsung gagal total.
+     */
+    private function createRegistrationWithRetry(array $attributes, int $maxAttempts = 3): Registration
+    {
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                return Registration::create($attributes);
+            } catch (\Illuminate\Database\QueryException $e) {
+                $isDuplicateEntry = (int) ($e->errorInfo[1] ?? 0) === 1062;
+                if (! $isDuplicateEntry || $attempt === $maxAttempts) {
+                    throw $e;
+                }
+                \Log::warning("Reg number bentrok (percobaan {$attempt}), mencoba lagi: " . $e->getMessage());
+            }
+        }
     }
 
     // ─── STEP 2: Proses form, simpan ke DB, dapat snap token, kembali ke checkout ──
@@ -74,6 +165,12 @@ class CheckoutController extends Controller
         // walau request dikirim langsung ke endpoint ini (bypass step 1).
         if ($event->isExpired()) {
             return back()->withErrors(['error' => 'Event ini sudah berakhir, pembelian tiket tidak tersedia lagi.']);
+        }
+
+        // Pastikan email sudah diverifikasi via OTP sebelum memproses order.
+        if ($request->input('buyer_email') !== session('otp_email') || ! session('email_verified')) {
+            return back()->withErrors(['email' => 'Silakan verifikasi email Anda terlebih dahulu sebelum lanjut ke pembayaran.'])
+                         ->withInput();
         }
 
         // Bug fix (High): spam checkout / klik berkali-kali dalam waktu singkat.
@@ -134,7 +231,7 @@ class CheckoutController extends Controller
                         'name'     => substr($event->title . ' - ' . $ticket->name, 0, 50),
                     ];
 
-                    $created[] = Registration::create([
+                    $created[] = $this->createRegistrationWithRetry([
                         'event_id'       => $event->id,
                         'ticket_type_id' => $ticket->id,
                         'order_ref'      => $orderRef,
@@ -152,9 +249,42 @@ class CheckoutController extends Controller
 
                 return $created;
             });
-        } catch (\Throwable $e) {
-            \Log::warning('Checkout gagal: ' . $e->getMessage());
+        } catch (\RuntimeException $e) {
+            // Error validasi bisnis yang sengaja kita lempar (stok habis, dll) — aman ditampilkan ke pembeli.
+            \Log::warning('Checkout gagal (validasi): ' . $e->getMessage());
             return back()->withErrors(['error' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            // Bug fix (Medium): jangan tampilkan pesan exception/SQL mentah ke pembeli
+            // (mis. duplicate entry, connection error) — log detailnya, tapi tunjukkan
+            // pesan generik yang ramah ke user.
+            \Log::error('Checkout gagal (sistem): ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan sistem saat memproses checkout. Silakan coba lagi.']);
+        }
+
+        // Bug fix (Critical): tiket gratis (total_price = 0) tidak bisa diproses lewat
+        // Midtrans — Snap menolak transaction_details.gross_amount yang 0, sehingga
+        // sebelumnya order gratis SELALU gagal dengan "Gagal menghubungi layanan
+        // pembayaran (Midtrans)" dan otomatis dibatalkan. Untuk order Rp 0, lewati
+        // Midtrans sama sekali dan langsung konfirmasi pesanannya.
+        if ((int) $totalPrice <= 0) {
+            // Pakai applyVerifiedStatus dengan status seolah 'settlement' (lunas) —
+            // method yang sama yang dipakai webhook Midtrans, supaya logikanya
+            // konsisten: update status registrasi + tambah kuota `sold` sekaligus.
+            $this->applyVerifiedStatus($orderRef, 'settlement', null);
+
+            session([
+                'order_ref'   => $orderRef,
+                'total_price' => $totalPrice,
+                'buyer_name'  => $request->buyer_name,
+                'buyer_nim'   => $request->buyer_nim,
+                'buyer_email' => $request->buyer_email,
+                'buyer_phone' => $request->buyer_phone,
+                'event_id'    => $event->id,
+            ]);
+            session()->forget(['pending_checkout', 'snap_token', 'on_step']);
+
+            // Langsung ke halaman ringkasan — tidak ada step pembayaran untuk tiket gratis.
+            return redirect()->route('checkout.summary', $event->slug);
         }
 
         // ── Buat Midtrans Snap token ───────────────────────────────────────
@@ -203,16 +333,12 @@ class CheckoutController extends Controller
             'event_id'     => $event->id,
             'on_step'      => 2,            // ← sinyal ke blade untuk skip ke step 2
         ]);
+        session()->forget('pending_checkout'); // sudah tidak diperlukan, step 2 dibaca dari order_ref
 
-        // Rebuild selectedTickets untuk view
-        $selectedTickets = [];
-        foreach ($request->tickets as $item) {
-            $ticket = TicketType::find($item['id']);
-            if ($ticket) $selectedTickets[] = ['ticket' => $ticket, 'qty' => (int) $item['qty']];
-        }
-
-        // Kembali ke checkout.blade.php — blade akan auto-buka step 2 + Midtrans
-        return view('checkout', compact('event', 'selectedTickets', 'totalPrice'));
+        // Bug fix (Critical): redirect ke route GET (checkout.show) alih-alih render
+        // view langsung dari response POST ini — supaya kalau halaman step 2 (popup
+        // pembayaran Midtrans) direfresh, browser GET ke URL yang valid, bukan 405.
+        return redirect()->route('checkout.show', $event->slug);
     }
 
     // ─── STEP 3: Summary / finish ────────────────────────────────────────────
@@ -407,4 +533,53 @@ class CheckoutController extends Controller
             return false;
         }
     }
+
+    public function sendOtp(Request $request)
+{
+    $request->validate(['email' => 'required|email']);
+
+    $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+    session([
+        'otp_email'      => $request->email,
+        'otp_code'       => Hash::make($otp),
+        'otp_expires_at' => now()->addMinutes(5),
+        'otp_attempts'   => 0,
+        'email_verified' => false,
+    ]);
+
+    Mail::to($request->email)->send(new OtpVerificationMail($otp));
+
+    return response()->json(['message' => 'Kode OTP telah dikirim ke email Anda.']);
+}
+
+public function verifyOtp(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'otp'   => 'required|digits:6',
+    ]);
+
+    if ($request->email !== session('otp_email')) {
+        return response()->json(['message' => 'Email tidak sesuai dengan yang dikirimi kode.'], 422);
+    }
+
+    if (now()->greaterThan(session('otp_expires_at'))) {
+        return response()->json(['message' => 'Kode OTP sudah expired, silakan kirim ulang.'], 422);
+    }
+
+    if (session('otp_attempts', 0) >= 5) {
+        return response()->json(['message' => 'Terlalu banyak percobaan salah, silakan kirim ulang kode.'], 422);
+    }
+
+    if (! Hash::check($request->otp, session('otp_code'))) {
+        session(['otp_attempts' => session('otp_attempts', 0) + 1]);
+        return response()->json(['message' => 'Kode OTP salah.'], 422);
+    }
+
+    session(['email_verified' => true]);
+    session()->forget(['otp_code', 'otp_attempts', 'otp_expires_at']);
+
+    return response()->json(['message' => 'Email berhasil diverifikasi.']);
+}
 }

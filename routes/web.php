@@ -26,8 +26,15 @@ Route::get('/about', [AboutUsController::class, 'tampilkan'])->name('about');
 
 // ─── Checkout (multi-step) ────────────────────────────────────────────────────
 
-// Step 1: Terima pilihan tiket → tampil form checkout
+// Step 1: Terima pilihan tiket → simpan ke session → redirect ke halaman checkout (GET)
 Route::post('/event/{event:slug}/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+// Halaman checkout (GET, aman direfresh) — render step 1 atau step 2 berdasarkan session
+Route::get('/event/{event:slug}/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
+
+// Kode Verifikasi OTP
+Route::post('/checkout/send-otp', [CheckoutController::class, 'sendOtp'])->name('checkout.sendOtp');
+Route::post('/checkout/verify-otp', [CheckoutController::class, 'verifyOtp'])->name('checkout.verifyOtp');
 
 // Step 2: Proses form checkout → simpan ke DB → redirect ke payment
 Route::post('/event/{event:slug}/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
@@ -131,5 +138,3 @@ Route::prefix('panitia')->name('panitia.')->middleware(['auth', 'panitia'])->gro
     Route::get('/events/{event}/participants', [ParticipantController::class, 'index'])->name('participants');
     Route::get('/events/{event}/participants/{registration}/ticket', [ParticipantController::class, 'downloadTicket'])->name('participants.ticket');
 });
-
-

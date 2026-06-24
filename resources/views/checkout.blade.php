@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - SIMETIX</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css','resources/js/app.js'])
     <style>
         button, a, .cursor-pointer { cursor: pointer; }
@@ -115,7 +116,8 @@
                 </svg>
                 Tiket akan kami kirim ke email anda
             </div>
-            <div class="grid grid-cols-2 gap-4">
+            {{-- Grid 2 kolom: Nama & NIM --}}
+            <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         <span class="flex items-center gap-1">
@@ -143,44 +145,71 @@
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
                            placeholder="NIM atau NIK">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            Email <span class="text-red-500">*</span>
-                        </span>
-                    </label>
-                    <input type="email" id="buyer-email" required
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
-                           placeholder="email@contoh.com">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                            </svg>
-                            No HP <span class="text-red-500">*</span>
-                        </span>
-                    </label>
-                    <input type="text" id="buyer-phone" required
-                           pattern="\+?[0-9]{8,20}" inputmode="numeric"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
-                           placeholder="08xxxxxxxxxx">
-                </div>
             </div>
-        </div>
 
-        <button id="lanjutkan-btn" onclick="showKonfirmasiPembeli()"
-                class="w-full bg-[#6B0080] hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition mt-2 flex items-center justify-center gap-2">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-            </svg>
-            Lanjutkan Pembayaran
-        </button>
-    </div>
+            {{-- Field Nomor HP --}}
+            <div class="mb-4 grid grid-cols-2 gap-4 mb-4">
+                <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        No. HP <span class="text-red-500">*</span>
+                    </span>
+                </label>
+                <input type="tel" id="buyer-phone" required
+                       inputmode="tel"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
+                       placeholder="08xxxxxxxxxx">
+            </div>
+
+            {{-- Field Email + tombol Kirim OTP --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Email <span class="text-red-500">*</span>
+                    </span>
+                </label>
+                <div class="flex gap-2">
+                    <input type="email" id="buyer-email"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
+                           placeholder="email@example.com" required>
+                    <button type="button" id="btnSendOtp"
+                            class="bg-[#6B0080] hover:bg-[#580068] text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap transition">
+                        Kirim Kode
+                    </button>
+                </div>
+                <span id="emailVerifiedBadge" class="hidden text-green-600 text-sm font-medium mt-1 block">✓ Email terverifikasi</span>
+            </div>
+
+            {{-- Input Kode OTP (tersembunyi sampai OTP dikirim) --}}
+            <div class="mb-5" id="otpWrapper" style="display:none;">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Kode OTP</label>
+                <div class="flex gap-2 items-center">
+                    <input type="text" id="otpInput" maxlength="6" inputmode="numeric"
+                           class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-36 tracking-widest focus:ring-purple-500 focus:border-purple-500"
+                           placeholder="123456">
+                    <button type="button" id="btnVerifyOtp"
+                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm transition">
+                        Verifikasi
+                    </button>
+                    <button type="button" id="btnResendOtp" class="text-sm text-[#6B0080] underline" disabled>
+                        Kirim ulang (<span id="resendTimer">60</span>s)
+                    </button>
+                </div>
+                <p id="otpMessage" class="text-sm mt-1 text-gray-500"></p>
+            </div>
+            </div>
+            {{-- Tombol Lanjut ke Pembayaran --}}
+            <button type="button" id="btnLanjutPembayaran" disabled
+                    onclick="showKonfirmasiPembeli()"
+                    class="w-full bg-gray-400 text-white font-semibold py-3 rounded-xl cursor-not-allowed transition">
+                Lanjut ke Pembayaran
+            </button>
 
     {{-- ═══ STEP 2: PEMBAYARAN (Midtrans Snap) ═══ --}}
     <div id="page-2" class="hidden">
@@ -447,7 +476,87 @@ setInterval(() => {
     const s = String(seconds % 60).padStart(2, '0');
     timerEl.textContent = m + ' : ' + s;
 }, 1000);
+
+const emailInput   = document.getElementById('buyer-email');
+const btnSendOtp    = document.getElementById('btnSendOtp');
+const otpWrapper    = document.getElementById('otpWrapper');
+const otpInput       = document.getElementById('otpInput');
+const btnVerifyOtp  = document.getElementById('btnVerifyOtp');
+const btnResendOtp  = document.getElementById('btnResendOtp');
+const resendTimer    = document.getElementById('resendTimer');
+const otpMessage     = document.getElementById('otpMessage');
+const verifiedBadge  = document.getElementById('emailVerifiedBadge');
+const btnLanjut       = document.getElementById('btnLanjutPembayaran');
+
+let cooldown = null;
+
+function resetVerification() {
+    verifiedBadge.classList.add('hidden');
+    btnLanjut.disabled = true;
+    btnLanjut.classList.add('bg-gray-400', 'cursor-not-allowed');
+    otpWrapper.style.display = 'none';
+}
+
+// reset kalau email diubah setelah verified
+emailInput.addEventListener('input', resetVerification);
+
+btnSendOtp.addEventListener('click', async () => {
+    const email = emailInput.value;
+    if (!email) { alert('Isi email dulu.'); return; }
+
+    const res = await fetch("{{ route('checkout.sendOtp') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    otpMessage.textContent = data.message;
+    otpWrapper.style.display = 'block';
+    startCooldown();
+});
+
+btnVerifyOtp.addEventListener('click', async () => {
+    const res = await fetch("{{ route('checkout.verifyOtp') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ email: emailInput.value, otp: otpInput.value }),
+    });
+    const data = await res.json();
+    otpMessage.textContent = data.message;
+
+    if (res.ok) {
+        verifiedBadge.classList.remove('hidden');
+        otpWrapper.style.display = 'none';
+        btnLanjut.disabled = false;
+        btnLanjut.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        btnLanjut.classList.add('bg-[#6B0080]', 'hover:bg-[#580068]', 'cursor-pointer');
+    }
+});
+
+btnResendOtp.addEventListener('click', () => btnSendOtp.click());
+
+function startCooldown() {
+    let seconds = 60;
+    btnResendOtp.disabled = true;
+    clearInterval(cooldown);
+    cooldown = setInterval(() => {
+        seconds--;
+        resendTimer.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(cooldown);
+            btnResendOtp.disabled = false;
+            resendTimer.textContent = '0';
+        }
+    }, 1000);
+}
 </script>
+
 
 <x-confirm-dialog />
 

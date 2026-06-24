@@ -9,7 +9,7 @@ class AboutUsController extends Controller
 {
     $dataAbout = [
         'nama_project' => 'SIMETIX',
-        'deskripsi' => 'Solusi manajemen event untuk UKM kampus dalam mempublikasikan acara dan mengelola pendaftaran secara otomatis.',
+        'deskripsi' => 'Platform Event Management yang memudahkan penyelenggara mengelola event dan peserta mendapatkan tiket secara digital.',
         'layanan' => [
             ['jenis' => 'Early Bird', 'fitur' => 'Harga khusus untuk pendaftar awal.'],
             ['jenis' => 'Normal', 'fitur' => 'Tiket standar untuk peserta umum.'],

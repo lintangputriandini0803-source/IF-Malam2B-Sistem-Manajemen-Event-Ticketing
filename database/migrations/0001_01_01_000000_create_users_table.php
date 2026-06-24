@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50);
-            $table->integer('nim');
+            $table->string('nim', 20);        // fix: integer → string (NIM bisa >2 miliar, dan bisa ada leading zero)
             $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password', 20);
+            $table->string('password');        // fix: 20 → 255 (bcrypt = 60 karakter)
             $table->enum('role', ['admin', 'panitia'])->default('panitia');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('organization', 50)->nullable()->comment('Nama UKM/Himpunan');

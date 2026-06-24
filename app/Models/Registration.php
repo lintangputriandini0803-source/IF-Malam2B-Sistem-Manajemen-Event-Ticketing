@@ -58,11 +58,28 @@ class Registration extends Model
     }
 
     // ─── Helper methods ───────────────────────────────────────────────────────
+
+    /**
+     * Bug fix (Critical): generateRegNumber() sebelumnya pakai count()+1, yang
+     * race condition kalau dua checkout jalan bersamaan — keduanya bisa membaca
+     * count yang sama sebelum salah satu commit, lalu gagal saat insert karena
+     * reg_number sama (duplicate entry di constraint unique). Sekarang pakai
+     * lockForUpdate() pada baris reg_number terakhir tahun ini supaya transaksi
+     * lain harus menunggu, jadi nomor berikutnya selalu unik.
+     */
     public static function generateRegNumber(): string
     {
-        $year  = now()->format('Y');
-        $count = static::whereYear('created_at', $year)->count() + 1;
-        return sprintf('EVT-%s-%06d', $year, $count);
+        $year   = now()->format('Y');
+        $prefix = "EVT-{$year}-";
+
+        $lastNumber = static::where('reg_number', 'like', $prefix . '%')
+            ->lockForUpdate()
+            ->orderByDesc('reg_number')
+            ->value('reg_number');
+
+        $next = $lastNumber ? ((int) substr($lastNumber, strlen($prefix))) + 1 : 1;
+
+        return $prefix . sprintf('%06d', $next);
     }
 
     public function getTotalPrice(): float
