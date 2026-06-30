@@ -20,14 +20,12 @@
 
         body {
             background: #f0ecf5;
-            background-image: radial-gradient(ellipse at 0% 0%, rgba(107,0,128,0.04) 0%, transparent 60%);
         }
 
         /* ── SIDEBAR ── */
         .sidebar {
             width: var(--sidebar-w);
             background: var(--purple-dark);
-            background-image: linear-gradient(180deg, #4a005a 0%, #3a0047 100%);
             min-height: 100vh;
             position: fixed;
             top: 0; left: 0;
@@ -35,7 +33,31 @@
             flex-direction: column;
             z-index: 40;
             border-right: 1px solid rgba(255,255,255,0.04);
-            box-shadow: 2px 0 20px rgba(0,0,0,0.2);
+        }
+
+        /* ── MOBILE MENU TOGGLE & OVERLAY ── */
+        .menu-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 34px; height: 34px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #4b5563;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .menu-toggle:hover { background: #f3f4f6; }
+        .menu-toggle svg { width: 20px; height: 20px; }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 35;
         }
 
         .sidebar-brand {
@@ -144,17 +166,7 @@
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            border: 1px solid rgba(107,0,128,0.06);
-            box-shadow:
-                0 1px 3px rgba(0,0,0,0.05),
-                0 4px 12px rgba(107,0,128,0.05);
-            transition: box-shadow 0.2s, transform 0.2s;
-        }
-        .stat-card:hover {
-            box-shadow:
-                0 4px 16px rgba(107,0,128,0.1),
-                0 1px 4px rgba(0,0,0,0.06);
-            transform: translateY(-2px);
+            border: 1px solid rgba(107,0,128,0.08);
         }
 
         .stat-icon {
@@ -172,13 +184,23 @@
             align-items: center;
             gap: 14px;
             margin-bottom: 8px;
-            transition: box-shadow 0.18s, transform 0.18s;
-            border: 1px solid rgba(107,0,128,0.04);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid rgba(107,0,128,0.06);
         }
         .event-row:hover {
-            box-shadow: 0 4px 16px rgba(107,0,128,0.1);
-            transform: translateX(2px);
+            border-color: rgba(107,0,128,0.18);
+        }
+
+        @media (max-width: 640px) {
+            .event-row {
+                flex-wrap: wrap;
+            }
+            .event-row .event-info {
+                flex-basis: 100%;
+            }
+            .event-row .event-price {
+                text-align: left;
+                order: 3;
+            }
         }
 
         .event-thumb {
@@ -225,9 +247,7 @@
             right: 0; top: 100%;
             background: white;
             border-radius: 12px;
-            box-shadow:
-                0 8px 24px rgba(0,0,0,0.1),
-                0 2px 8px rgba(107,0,128,0.08);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
             border: 1px solid rgba(107,0,128,0.08);
             min-width: 150px;
             z-index: 50;
@@ -248,6 +268,13 @@
         .dropdown-item:hover { background: #f7f0ff; color: #6B0080; }
         .dropdown-item.danger { color: #dc2626; }
         .dropdown-item.danger:hover { background: #fef2f2; color: #dc2626; }
+
+        /* ── RESPONSIVE FORM GRIDS ── */
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        @media (max-width: 640px) {
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+        }
 
         /* ── TAB ── */
         .tab-btn {
@@ -279,6 +306,23 @@
             font-size: 13px;
             color: #9ca3af;
             margin-bottom: 24px;
+        }
+
+        /* ── MOBILE OVERRIDES (placed last to win the cascade) ── */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.22s ease;
+            }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            body.sidebar-open .sidebar-overlay { display: block; }
+            .topbar { margin-left: 0; padding: 0 16px; }
+            .content { margin-left: 0; padding: 18px 16px; }
+            .menu-toggle { display: inline-flex; }
+        }
+
+        @media (max-width: 480px) {
+            .page-header { font-size: 19px; }
         }
     </style>
 </head>
@@ -361,9 +405,17 @@
     </div>
 </aside>
 
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- TOPBAR -->
 <div class="topbar">
-    <span class="text-white font-semibold text-sm">@yield('page-title', 'Dashboard')</span>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka menu">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
+    <span style="color:#1a0020;font-weight:700;font-size:14px">@yield('page-title', 'Dashboard')</span>
 </div>
 
 <!-- CONTENT -->
@@ -383,6 +435,22 @@
             const dd = btn.closest('.dropdown');
             dd.classList.toggle('open');
         }
+    });
+
+    // Mobile sidebar toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => document.body.classList.toggle('sidebar-open'));
+    }
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+    }
+    document.querySelectorAll('.sidebar .nav-item').forEach(link => {
+        link.addEventListener('click', closeSidebar);
     });
 </script>
 

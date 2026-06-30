@@ -49,10 +49,10 @@
 
 {{-- SEARCH --}}
 <div style="background:white;border-radius:14px;padding:16px 20px;margin-bottom:16px">
-    <form method="GET" style="display:flex;gap:10px">
+    <form method="GET" style="display:flex;gap:10px;flex-wrap:wrap">
         <input type="text" name="search" value="{{ request('search') }}"
                placeholder="Cari nama, email, atau no. registrasi..."
-               style="flex:1;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-size:13px">
+               style="flex:1 1 220px;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-size:13px">
         <button type="submit" style="background:#6B0080;color:white;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;border:none">
             Cari
         </button>
@@ -66,8 +66,8 @@
 </div>
 
 {{-- BUYER LIST --}}
-<div style="overflow-x-auto;border-radius:14px;overflow:hidden">
-    <table style="width:100%;border-collapse:collapse;background:white">
+<div style="overflow-x:auto;border-radius:14px;border:1px solid #f3f4f6">
+    <table style="width:100%;min-width:760px;border-collapse:collapse;background:white">
         <thead style="background:#f9fafb">
             <tr style="text-align:left;font-size:11px;text-transform:uppercase;color:#9ca3af">
                 <th style="padding:12px 16px">Reg. Number</th>

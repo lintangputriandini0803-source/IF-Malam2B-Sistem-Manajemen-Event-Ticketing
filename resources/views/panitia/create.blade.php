@@ -33,7 +33,7 @@
         {{-- SECTION 1: INFO DASAR --}}
         <div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
             <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
-                📋 Informasi Dasar
+                Informasi Dasar
             </h2>
 
             {{-- Nama Event --}}
@@ -62,7 +62,7 @@
             </div>
 
             {{-- Kategori & Status --}}
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="form-grid-2">
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
                         Kategori <span style="color:#dc2626">*</span>
@@ -105,10 +105,10 @@
         {{-- SECTION 2: WAKTU & LOKASI --}}
         <div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
             <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
-                📍 Waktu & Lokasi
+                Waktu & Lokasi
             </h2>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+            <div class="form-grid-2" style="margin-bottom:16px">
                 {{-- Tanggal Mulai --}}
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
@@ -147,7 +147,7 @@
         {{-- SECTION 3: TIKET --}}
         <div style="background:white;border-radius:14px;padding:24px;margin-bottom:16px">
             <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
-                🎫 Tiket
+                Tiket
             </h2>
 
             <div id="tiket-list">
@@ -192,7 +192,7 @@
                         @endif
                     </div>
 
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                    <div class="form-grid-3">
                         {{-- Nama Tiket --}}
                         <div>
                             <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
@@ -279,7 +279,7 @@
                 <div style="font-size:12px;font-weight:700;color:#6B0080;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">
                     Tiket ${index + 1}
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                <div class="form-grid-3">
                     <div>
                         <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Nama Tiket</label>
                         <input type="text" name="tikets[${index}][nama]" placeholder="cth: Regular, VIP..."
@@ -326,7 +326,7 @@
         {{-- SECTION 4: POSTER --}}
         <div style="background:white;border-radius:14px;padding:24px;margin-bottom:20px">
             <h2 style="font-size:15px;font-weight:700;color:#111;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f3f4f6">
-                🖼 Poster Event
+                Poster Event
             </h2>
 
             @if(isset($event) && $event->poster)
@@ -357,7 +357,7 @@
         </div>
 
         {{-- ACTIONS --}}
-        <div style="display:flex;gap:10px;justify-content:flex-end">
+        <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
             <a href="{{ route('panitia.events.index') }}"
                style="padding:11px 22px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-weight:600;color:#374151;text-decoration:none;background:white">
                 Batal
@@ -368,7 +368,7 @@
             </button>
             <button type="submit" name="action" value="publish"
                     style="padding:11px 22px;border:none;border-radius:10px;font-size:14px;font-weight:700;color:white;background:#6B0080;cursor:pointer">
-                {{ isset($event) ? '💾 Simpan Perubahan' : '🚀 Publish Event' }}
+                {{ isset($event) ? 'Simpan Perubahan' : 'Publish Event' }}
             </button>
         </div>
     </form>

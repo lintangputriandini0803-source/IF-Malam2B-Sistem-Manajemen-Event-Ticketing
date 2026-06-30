@@ -61,7 +61,7 @@
         </div>
 
         {{-- STATUS FILTER --}}
-        <div style="display:flex;gap:6px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
             @foreach([''=>'Semua','draft'=>'Draft','published'=>'Published','cancelled'=>'Cancelled'] as $val=>$label)
             <a href="{{ route('panitia.events.index', array_merge(request()->query(), ['status'=>$val])) }}"
                style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;
@@ -74,7 +74,7 @@
         @if(request('search') || request('category') || request('status'))
         <a href="{{ route('panitia.events.index') }}"
            style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;background:#fee2e2;color:#dc2626">
-            ✕ Reset
+            Reset
         </a>
         @endif
     </form>
@@ -85,12 +85,12 @@
 <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
     @if(request('search'))
     <span style="padding:4px 12px;background:#f5eeff;color:#6B0080;border-radius:20px;font-size:12px;font-weight:600">
-        🔍 "{{ request('search') }}"
+        "{{ request('search') }}"
     </span>
     @endif
     @if(request('category'))
     <span style="padding:4px 12px;background:#f5eeff;color:#6B0080;border-radius:20px;font-size:12px;font-weight:600">
-        📁 {{ ucfirst(request('category')) }}
+        {{ ucfirst(request('category')) }}
     </span>
     @endif
     <span style="font-size:12px;color:#9ca3af;align-self:center">
@@ -123,7 +123,7 @@
             $minPrice     = $event->ticketTypes->min('price');
             $displayDate  = $event->getFormattedDateRange();
         @endphp
-        <div style="flex:1;min-width:0">
+        <div class="event-info" style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                 <p style="font-size:14px;font-weight:700;color:#111">{{ $event->title }}</p>
                 @if($event->category)
@@ -138,22 +138,22 @@
                 @endif
             </div>
             <p style="font-size:12px;color:#9ca3af;margin-top:3px">
-                📅 {{ $displayDate }}
+                {{ $displayDate }}
                 &nbsp;·&nbsp;
-                📍 {{ $event->location ?? '-' }}
+                {{ $event->location ?? '-' }}
                 &nbsp;·&nbsp;
-                🎫 {{ $totalSold }}/{{ $totalQuota }} tiket terjual
+                {{ $totalSold }}/{{ $totalQuota }} tiket terjual
             </p>
         </div>
 
         {{-- HARGA --}}
-        <div style="text-align:right;flex-shrink:0">
+        <div class="event-price" style="text-align:right;flex-shrink:0">
             @if($event->ticketTypes->isEmpty())
                 <p style="font-size:12px;color:#9ca3af">Belum ada tiket</p>
             @elseif($minPrice == 0)
                 <p style="font-size:14px;font-weight:800;color:#16a34a">GRATIS</p>
             @else
-                <p style="font-size:13px;color:#9ca3af;font-size:10px">Mulai dari</p>
+                <p style="color:#9ca3af;font-size:10px">Mulai dari</p>
                 <p style="font-size:14px;font-weight:800;color:#6B0080">Rp {{ number_format($minPrice,0,',','.') }}</p>
             @endif
         </div>
@@ -168,18 +168,18 @@
             </button>
             <div class="dropdown-menu">
                 <a href="{{ route('panitia.events.edit', $event->id) }}" class="dropdown-item">
-                    ✏️ Edit
+                    Edit
                 </a>
                 <a href="{{ route('panitia.participants', $event->id) }}" class="dropdown-item">
-                    👥 Lihat Peserta
+                    Lihat Peserta
                 </a>
                 <a href="{{ route('event.show', $event->slug) }}" target="_blank" class="dropdown-item">
-                    👁 Lihat
+                    Lihat
                 </a>
                 <form method="POST" action="{{ route('panitia.events.destroy', $event->id) }}"
                       onsubmit="return confirm('Hapus event ini?')">
                     @csrf @method('DELETE')
-                    <button type="submit" class="dropdown-item danger w-full text-left">🗑 Hapus</button>
+                    <button type="submit" class="dropdown-item danger w-full text-left">Hapus</button>
                 </form>
             </div>
         </div>
